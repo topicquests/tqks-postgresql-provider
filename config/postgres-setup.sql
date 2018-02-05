@@ -150,7 +150,7 @@ tq_contents.merge_tuple_locators (
 CREATE TABLE IF NOT EXISTS
 tq_contents.labels (
   proxyid      UUID PRIMARY KEY,
-  label        text NOT NULL check (length(event) < 1024),
+  label        text NOT NULL check (length(label) < 1024),
   language     text NOT NULL check (length(language) = 2)
 );
 
