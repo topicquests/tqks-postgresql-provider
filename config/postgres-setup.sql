@@ -10,7 +10,10 @@
 -- Run as superuser.
 
 -- Create the tablespace for TopicQuests data.
-CREATE TABLESPACE tq_space LOCATION '/var/lib/pgsql/tq';
+-- 2018/02/15 - Use the default database until we can figure out
+--              how to create the data directory for all platforms.
+--
+-- CREATE TABLESPACE tq_space LOCATION '/var/lib/pgsql/tq';
 
 -- Primary roles
 CREATE ROLE tq_users;    -- full access to user information
@@ -21,7 +24,7 @@ CREATE ROLE tq_proxy_ro; -- read-only access to proxy information
 CREATE USER tq_admin PASSWORD 'md50cc925a0f68135ed505afa9f1aeaf5dd'  -- full access
     CREATEDB
     NOINHERIT IN ROLE tq_users, tq_proxy;
-GRANT CREATE ON TABLESPACE tq_space TO tq_admin;
+-- GRANT CREATE ON TABLESPACE tq_space TO tq_admin;
 
 CREATE USER tq_user PASSWORD 'md50c6d478265233f1cc3ff062c7e5ef382'  -- limited access
     NOINHERIT IN ROLE tq_users_ro, tq_proxy_ro;
@@ -34,7 +37,7 @@ CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
 SET ROLE tq_admin;
 
 -- Create the database.
-CREATE DATABASE tq_database ENCODING UTF8 TABLESPACE tq_space;
+CREATE DATABASE tq_database ENCODING UTF8;
 
 -- Switch to tq_database.
 \c tq_database
