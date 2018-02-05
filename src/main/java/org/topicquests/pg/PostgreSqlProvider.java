@@ -50,6 +50,10 @@ public class PostgreSqlProvider extends RootEnvironment
 		System.out.println("GETCON");
 		return DriverManager.getConnection(urx, props);
 	}
+
+  public Properties getProps() {
+    return props;
+  }
 	
 	/**
 	 * Must be called
