@@ -1,3 +1,4 @@
+
 # tqks-postgress-provider
 
 ## Build
@@ -17,3 +18,7 @@ To run the unit tests, run the command
 ```
 mvn test
 ```
+
+## Setup the database for Topic Maps
+
+To set up the database, consult the `README.txt` file in the `config` directory.
