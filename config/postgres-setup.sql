@@ -221,7 +221,7 @@ tq_contents.subjects (
   creator       UUID,  -- user locator
   subject       text,
   comment       text,
-  language      text NOT NULL check (length(language) = 2)
+  language      text NOT NULL check (length(language) = 2),
   last_edit     TIMESTAMPTZ DEFAULT NOW()
 );
 
@@ -234,7 +234,7 @@ tq_contents.bodies (
   creator       UUID,  -- user locator
   body          text,
   comment       text,
-  language      text NOT NULL check (length(language) = 2)
+  language      text NOT NULL check (length(language) = 2),
   last_edit     TIMESTAMPTZ DEFAULT NOW()
 );
 
@@ -246,7 +246,7 @@ CREATE TABLE IF NOT EXISTS
 tq_contents.proxy_provenence (
   proxyid      UUID PRIMARY KEY,
   event_time   TIMESTAMPTZ DEFAULT NOW(),
-  event        varchar(1024) NOT NULL,
+  event        varchar(1024) NOT NULL
 );
 
 GRANT ALL PRIVILEGES ON tq_contents.proxy_provenence TO tq_proxy;
