@@ -1,0 +1,71 @@
+GOALS
+	DEPRECATED PostgreSql driver for SQL and Cypher Graph Language
+		based on AgensGraph
+	GENERAL PURPOSE PostgreSQL driver
+	TO be used by DSLs
+		E.G
+			Blueprints
+			TopicMap
+			Prolog
+REFERENCES
+	https://www.pgadmin.org/
+	https://www.codementor.io/devops/tutorial/getting-started-postgresql-server-mac-osx
+	
+
+USER MANUAL
+	psql postgres  get into commandline app
+	\l to list tables
+	\q to quit pgsql
+	CREATE ROLE
+	CREATE ROLE username WITH LOGIN PASSWORD 'quoted password'
+		Those from postgress-props.xml
+		e.g.
+		CREATE ROLE testuser WITH LOGIN PASSWORD 'testpwd';
+	
+	DATABASE CREATION
+	For each graph to be maintained, user must create a database with that 
+		graphName, and the userName and password specified in /config/postgress-props.xml
+		Example
+			CREATE DATABASE <dbname> --encoding utf-8 --username username --password pwd
+			e.g. (password doesn't work)
+			//these are used in devtests
+			CREATE DATABASE testdb ENCODING 'UTF-8' OWNER 'testuser';
+			CREATE DATABASE mynewdb ENCODING 'UTF-8' OWNER 'testuser';
+
+NOTES
+	20170921
+		AgensGraph is "community edition"
+			Do not know if it knows how to deal with
+				PostgreSql clusters
+MASTER TODO
+	MODIFY TO GAIN ACCESS TO ONE INSTANCE, MULTIPLE DRIVERS
+		That is, common socket, multiple graphs
+		CONSIDER
+			SMALL hidden class that generates connection against
+				a databaseName
+			getInstance() of platform
+			then IConnection getDriver(String databaseName)
+				where IConnection defined as Connection getConnection()
+BUGS
+MUSINGS
+	20171009
+		V 0.4.0
+		ADDING API
+	20171008
+		V 0.2.0
+		ADDED executeCount
+	20171007
+		ADDED IPostgreSqlProvider
+		CHANGED PostgreSQLEnvironment --> PostgreSqlProvider implements IPostgreSqlProvider
+		WIRED PostgreSqlProvider
+		ADDED FirstTest
+			VALIDATES database!
+		ADDED SecondTest
+			Does simple insert and select!
+		ADDED ThirdTest
+			SHOWS that we cannot use String... for values when one of the
+				values is of type json
+		NEXT
+			Some devTests
+	20170921
+		FIRST CUT
