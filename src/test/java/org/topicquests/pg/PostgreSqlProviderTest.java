@@ -129,7 +129,7 @@ public class PostgreSqlProviderTest {
     vals[1] = jo.toJSONString();
     
     // Insert
-    String sql = "INSERT INTO " + VERTEX_TABLE + " values(?, ?)";
+    String sql = "INSERT INTO " + VERTEX_TABLE + " values(?, to_json(?::json))";
     IResult r = null;
     try {
       r = provider.executeSQL(sql, vals);
