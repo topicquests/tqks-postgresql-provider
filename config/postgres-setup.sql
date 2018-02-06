@@ -30,7 +30,6 @@ CREATE USER tq_user PASSWORD 'md50c6d478265233f1cc3ff062c7e5ef382'  -- limited a
     NOINHERIT IN ROLE tq_users_ro, tq_proxy_ro;
 
 CREATE EXTENSION IF NOT EXISTS pgcrypto;
-CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
 
 
 -- Switch to the tq_admin user to create the database for TQ objects.
@@ -49,9 +48,14 @@ CREATE SCHEMA IF NOT EXISTS tq_authentication;
 GRANT ALL ON schema tq_authentication TO tq_users;
 GRANT USAGE ON schema tq_authentication TO tq_users_ro;
 
+--
+-- Create a locator type.
+--
+CREATE DOMAIN locator VARCHAR(50) NOT NULL;
+
 CREATE TABLE IF NOT EXISTS
 tq_authentication.users (
-  userid       UUID UNIQUE DEFAULT uuid_generate_v4(),
+  userid       locator UNIQUE,
   email        text UNIQUE NOT NULL check ( email ~* '^.+@.+\..+$' ),
   password     varchar(512) NOT NULL,
   handle       varchar(32) UNIQUE NOT NULL,
@@ -106,7 +110,7 @@ $$;
 -- User log.
 CREATE TABLE IF NOT EXISTS
 tq_authentication.user_log (
-  userid       UUID PRIMARY KEY,
+  userid       locator PRIMARY KEY,
   event_time   TIMESTAMPTZ DEFAULT NOW(),
   event        varchar(1024) NOT NULL
 );
@@ -124,8 +128,8 @@ GRANT USAGE ON schema tq_contents TO tq_proxy_ro;
 
 CREATE TABLE IF NOT EXISTS
 tq_contents.proxy (
-  proxyid      UUID DEFAULT uuid_generate_v4(),
-  userid       UUID,
+  proxyid      locator,
+  userid       locator,
   node_type    text,
   url          text,
   is_virtual   boolean DEFAULT false,
@@ -142,9 +146,9 @@ GRANT SELECT ON tq_contents.proxy TO tq_proxy_ro;
 --
 CREATE TABLE IF NOT EXISTS
 tq_contents.merge_tuple_locators (
-  proxyid      UUID PRIMARY KEY,
-  locator      text  -- merge tuple locator: many locators can be
-                     -- associated with a proxy
+  proxyid      locator PRIMARY KEY,
+  mtlocator    locator  -- merge tuple locator: many locators can be
+                        -- associated with a proxy
 );
 
 --
@@ -152,7 +156,7 @@ tq_contents.merge_tuple_locators (
 --
 CREATE TABLE IF NOT EXISTS
 tq_contents.labels (
-  proxyid      UUID PRIMARY KEY,
+  proxyid      locator PRIMARY KEY,
   label        text NOT NULL check (length(label) < 1024),
   language     text NOT NULL check (length(language) = 2)
 );
@@ -163,7 +167,7 @@ tq_contents.labels (
 --
 CREATE TABLE IF NOT EXISTS
 tq_contents.details (
-  proxyid      UUID PRIMARY KEY,
+  proxyid      locator PRIMARY KEY,
   details      varchar(1024) NOT NULL,
   language     text NOT NULL check (length(language) = 2)
 );
@@ -173,7 +177,7 @@ tq_contents.details (
 --
 CREATE TABLE IF NOT EXISTS
 tq_contents.superclasses (
-  proxyid      UUID PRIMARY KEY,
+  proxyid      locator PRIMARY KEY,
   superclass   text  -- superclass locator
 );
 
@@ -182,7 +186,7 @@ tq_contents.superclasses (
 --
 CREATE TABLE IF NOT EXISTS
 tq_contents.psi (
-  proxyid      UUID PRIMARY KEY,
+  proxyid      locator PRIMARY KEY,
   psi          text
 );
 
@@ -191,7 +195,7 @@ tq_contents.psi (
 --
 CREATE TABLE IF NOT EXISTS
 tq_contents.properties (
-  proxyid      UUID,
+  proxyid      locator,
   property_key text,
   property_val text,
   PRIMARY KEY (proxyid, property_key)
@@ -202,7 +206,7 @@ tq_contents.properties (
 --
 CREATE TABLE IF NOT EXISTS
 tq_contents.transitive_closure (
-  proxyid       UUID PRIMARY KEY,
+  proxyid       locator PRIMARY KEY,
   property_type text
 );
 
@@ -211,7 +215,7 @@ tq_contents.transitive_closure (
 --
 CREATE TABLE IF NOT EXISTS
 tq_contents.acls (
-  proxyid       UUID PRIMARY KEY,
+  proxyid       locator PRIMARY KEY,
   acl           text
 );
 
@@ -220,8 +224,8 @@ tq_contents.acls (
 --
 CREATE TABLE IF NOT EXISTS
 tq_contents.subjects (
-  proxyid       UUID PRIMARY KEY,
-  creator       UUID,  -- user locator
+  proxyid       locator PRIMARY KEY,
+  creator       locator,  -- user locator
   subject       text,
   comment       text,
   language      text NOT NULL check (length(language) = 2),
@@ -233,12 +237,27 @@ tq_contents.subjects (
 --
 CREATE TABLE IF NOT EXISTS
 tq_contents.bodies (
-  proxyid       UUID PRIMARY KEY,
-  creator       UUID,  -- user locator
+  proxyid       locator PRIMARY KEY,
+  creator       locator,  -- user locator
   body          text,
   comment       text,
   language      text NOT NULL check (length(language) = 2),
   last_edit     TIMESTAMPTZ DEFAULT NOW()
+);
+
+--
+-- Table to hold relations.
+--
+CREATE TABLE IF NOT EXISTS
+tq_contents.relations (
+  proxyid        locator PRIMARY KEY,
+  typeLocator    locator,
+  relationLoc    locator,
+  label          text,
+  targetLoc      locator,
+  targetLabel    text,
+  nodeType       text,
+  sourceOrTarget text
 );
 
 
@@ -247,7 +266,7 @@ tq_contents.bodies (
 --
 CREATE TABLE IF NOT EXISTS
 tq_contents.proxy_provenence (
-  proxyid      UUID PRIMARY KEY,
+  proxyid      locator PRIMARY KEY,
   event_time   TIMESTAMPTZ DEFAULT NOW(),
   event        varchar(1024) NOT NULL
 );
