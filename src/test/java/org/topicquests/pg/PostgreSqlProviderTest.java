@@ -21,10 +21,11 @@ import java.sql.Statement;
 
 import java.util.Properties;
 
-class PostgreSqlProviderTest {
+public class PostgreSqlProviderTest {
   @BeforeAll
   @DisplayName("Initialize Test Database")
   static void initAll() {
+    System.out.println("in initAll");
     String[] testCreation = {
       "CREATE ROLE testuser WITH LOGIN PASSWORD 'testpwd'",
       "CREATE DATABASE testdb ENCODING 'UTF-8' OWNER 'testuser'"
@@ -42,11 +43,11 @@ class PostgreSqlProviderTest {
     provider.shutDown();
 
     setupTestUser();
+    setupDBTables();
   }
 
-  @Test
-  @DisplayName("Table Setup")
-  void setupDBTables() {
+  private static void setupDBTables() {
+    System.out.println("in setupDBTables");
     assertEquals("testuser", props.getProperty("user"));
 
     final String [] tableSchema = {
@@ -73,6 +74,7 @@ class PostgreSqlProviderTest {
   @Test
   @DisplayName("Insert and Select")
   void InsertAndSelect() {
+    System.out.println("in InsertAndSelect");
     final String
         VERTEX_TABLE	= "vertex",
         EDGE_TABLE      = "edge",
@@ -110,6 +112,7 @@ class PostgreSqlProviderTest {
   @Test
   @DisplayName("Insert and Select #2")
   void InsertAndSelect2() {
+    System.out.println("in InsertAndSelect2");
     final String
         VERTEX_TABLE	= "vertex",
         EDGE_TABLE      = "edge",
@@ -127,11 +130,20 @@ class PostgreSqlProviderTest {
     
     // Insert
     String sql = "INSERT INTO " + VERTEX_TABLE + " values(?, ?)";
-    IResult r = provider.executeSQL(sql, vals);
+    IResult r = null;
+    try {
+      r = provider.executeSQL(sql, vals);
+    } catch (Exception e) {
+      fail(e.getMessage());
+    }
 
     // Select
     sql = "SELECT json FROM " + VERTEX_TABLE + " where id=?";
-    r = provider.executeSelect(sql, V_ID);
+    try {
+      r = provider.executeSelect(sql, V_ID);
+    } catch (Exception e) {
+      fail(e.getMessage());
+    }
     Object o = r.getResultObject();
 
     if (o != null) {
@@ -150,6 +162,7 @@ class PostgreSqlProviderTest {
   @AfterAll
   @DisplayName("Tear Down Test Database")
   static void tearDownAll() {
+    System.out.println("in tearDownAll");
     // Drop the testuser provider
     provider.shutDown();
 
