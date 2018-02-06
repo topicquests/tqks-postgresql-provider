@@ -110,7 +110,7 @@ $$;
 -- User log.
 CREATE TABLE IF NOT EXISTS
 tq_authentication.user_log (
-  userid       locator PRIMARY KEY,
+  userid       locator NOT NULL,
   event_time   TIMESTAMPTZ DEFAULT NOW(),
   event        varchar(1024) NOT NULL
 );
@@ -146,7 +146,7 @@ GRANT SELECT ON tq_contents.proxy TO tq_proxy_ro;
 --
 CREATE TABLE IF NOT EXISTS
 tq_contents.merge_tuple_locators (
-  proxyid      locator PRIMARY KEY,
+  proxyid      locator NOT NULL,
   mtlocator    locator  -- merge tuple locator: many locators can be
                         -- associated with a proxy
 );
@@ -156,7 +156,7 @@ tq_contents.merge_tuple_locators (
 --
 CREATE TABLE IF NOT EXISTS
 tq_contents.labels (
-  proxyid      locator PRIMARY KEY,
+  proxyid      locator NOT NULL,
   label        text NOT NULL check (length(label) < 1024),
   language     text NOT NULL check (length(language) = 2)
 );
@@ -167,7 +167,7 @@ tq_contents.labels (
 --
 CREATE TABLE IF NOT EXISTS
 tq_contents.details (
-  proxyid      locator PRIMARY KEY,
+  proxyid      locator NOT NULL,
   details      varchar(1024) NOT NULL,
   language     text NOT NULL check (length(language) = 2)
 );
@@ -177,7 +177,7 @@ tq_contents.details (
 --
 CREATE TABLE IF NOT EXISTS
 tq_contents.superclasses (
-  proxyid      locator PRIMARY KEY,
+  proxyid      locator NOT NULL,
   superclass   text  -- superclass locator
 );
 
@@ -186,7 +186,7 @@ tq_contents.superclasses (
 --
 CREATE TABLE IF NOT EXISTS
 tq_contents.psi (
-  proxyid      locator PRIMARY KEY,
+  proxyid      locator NOT NULL,
   psi          text
 );
 
@@ -195,10 +195,9 @@ tq_contents.psi (
 --
 CREATE TABLE IF NOT EXISTS
 tq_contents.properties (
-  proxyid      locator,
+  proxyid      locator NOT NULL,
   property_key text,
-  property_val text,
-  PRIMARY KEY (proxyid, property_key)
+  property_val text
 );
 
 --
@@ -206,7 +205,7 @@ tq_contents.properties (
 --
 CREATE TABLE IF NOT EXISTS
 tq_contents.transitive_closure (
-  proxyid       locator PRIMARY KEY,
+  proxyid       locator NOT NULL,
   property_type text
 );
 
@@ -215,7 +214,7 @@ tq_contents.transitive_closure (
 --
 CREATE TABLE IF NOT EXISTS
 tq_contents.acls (
-  proxyid       locator PRIMARY KEY,
+  proxyid       locator NOT NULL,
   acl           text
 );
 
@@ -224,7 +223,7 @@ tq_contents.acls (
 --
 CREATE TABLE IF NOT EXISTS
 tq_contents.subjects (
-  proxyid       locator PRIMARY KEY,
+  proxyid       locator NOT NULL,
   creator       locator,  -- user locator
   subject       text,
   comment       text,
@@ -237,7 +236,7 @@ tq_contents.subjects (
 --
 CREATE TABLE IF NOT EXISTS
 tq_contents.bodies (
-  proxyid       locator PRIMARY KEY,
+  proxyid       locator NOT NULL,
   creator       locator,  -- user locator
   body          text,
   comment       text,
@@ -250,14 +249,13 @@ tq_contents.bodies (
 --
 CREATE TABLE IF NOT EXISTS
 tq_contents.relations (
-  proxyid        locator PRIMARY KEY,
-  typeLocator    locator,
-  relationLoc    locator,
-  label          text,
-  targetLoc      locator,
-  targetLabel    text,
-  nodeType       text,
-  sourceOrTarget text
+  proxyid        locator NOT NULL,
+  typeLocator    locator NOT NULL,
+  subjectLocator locator NOT NULL,
+  objectLocator  locator NOT NULL,
+  subjectLabel   text,
+  objectLabel    text,
+  nodeType       text
 );
 
 
@@ -266,7 +264,7 @@ tq_contents.relations (
 --
 CREATE TABLE IF NOT EXISTS
 tq_contents.proxy_provenence (
-  proxyid      locator PRIMARY KEY,
+  proxyid      locator NOT NULL,
   event_time   TIMESTAMPTZ DEFAULT NOW(),
   event        varchar(1024) NOT NULL
 );

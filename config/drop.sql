@@ -22,7 +22,7 @@ DROP ROLE tq_users_ro; -- read-only access user information
 DROP ROLE tq_proxy;    -- full access to proxy information
 DROP ROLE tq_proxy_ro; -- read-only access to proxy information
 
-DROP TABLESPACE tq_space;
+-- DROP TABLESPACE tq_space;
 
 DROP USER tq_admin;
 DROP USER tq_user;
