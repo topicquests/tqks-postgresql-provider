@@ -385,6 +385,7 @@ public class PostgreSqlProvider extends RootEnvironment
     return result;
   }
 
+  //Relies on CREATE IF NOT EXISTS
   @Override
   public IResult validateDatabase(String [] tableSchema) {
     IResult result = new ResultPojo();
@@ -392,17 +393,9 @@ public class PostgreSqlProvider extends RootEnvironment
     ResultSet rs = null;
     Statement s = null;
     System.out.println("VALIDATE-1 ");
-    try {
-      con = getConnection();
-      System.out.println("VALIDATE-1a "+con);
-      s = con.createStatement();
-      rs = s.executeQuery("select * from vertex");
-      System.out.println("VALIDATE-2");
-    } catch (Exception e) {
-      System.out.println("VALIDATE-3 "+e.getMessage());
+ 
       try {
-        if (s != null)
-          s.close();
+    	con = getConnection();
         String[] sql = tableSchema;
         int len = sql.length;
         System.out.println("VALIDATE-3a "+len);
@@ -412,12 +405,11 @@ public class PostgreSqlProvider extends RootEnvironment
           System.out.println("EXPORTING "+sql[i]);
           s.execute(sql[i]);
         }
-      } catch (SQLException x) {
+      } catch (Exception x) {
         logError(x.getMessage(), x);
         x.printStackTrace();
         throw new RuntimeException(x);
-      }
-    } finally {
+      } finally {
       System.out.println("VALIDATE-4");
       if (s != null) {
         try {
