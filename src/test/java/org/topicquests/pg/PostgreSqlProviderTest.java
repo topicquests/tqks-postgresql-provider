@@ -159,6 +159,36 @@ public class PostgreSqlProviderTest {
     }
   }
   
+  @Test
+  @DisplayName("Test Row Count")
+  void getRowCount() {
+    System.out.println("in getRowCount");
+    final String
+        VERTEX_TABLE	= "vertex",
+        EDGE_TABLE      = "edge",
+        V_ID            = Long.toString(System.currentTimeMillis());
+
+    assertEquals("testuser", props.getProperty("user"));
+
+    // Select
+    String sql = "SELECT * FROM " + VERTEX_TABLE;
+    IResult r = null;
+    try {
+      r = provider.executeCount(sql);
+    } catch (Exception e) {
+      fail(e.getMessage());
+    }
+
+    Object o = r.getResultObject();
+
+    if (o != null) {
+      Long count = (Long)o;
+      assertEquals(2, count.longValue());
+    } else {
+      fail("count not found");
+    }
+  }
+  
   @AfterAll
   @DisplayName("Tear Down Test Database")
   static void tearDownAll() {

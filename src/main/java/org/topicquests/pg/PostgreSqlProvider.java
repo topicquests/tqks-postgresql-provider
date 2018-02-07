@@ -187,9 +187,11 @@ public class PostgreSqlProvider extends RootEnvironment
     ResultSet rs = null;
 
     try {
-      s = conn.createStatement();
+      s = conn.createStatement(ResultSet.TYPE_SCROLL_SENSITIVE,
+                               ResultSet.CONCUR_READ_ONLY);
       rs = s.executeQuery(sql);
       rs.last();
+      System.out.println("count: " + rs.getRow());
       result.setResultObject(new Long(rs.getRow()));
     } catch (Exception e) {
       logError(e.getMessage(), e);
