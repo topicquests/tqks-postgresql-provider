@@ -344,7 +344,7 @@ public class PostgreSqlProvider extends RootEnvironment
     try {
       s = conn.prepareStatement(sql);
       int len = vals.length;
-      for (int i=0;i<len;i++) {
+      for (int i = 0; i < len; i++) {
         s.setString(i+1, vals[i]);
       }
       s.executeUpdate();

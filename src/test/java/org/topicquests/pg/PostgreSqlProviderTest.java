@@ -160,6 +160,69 @@ public class PostgreSqlProviderTest {
   }
   
   @Test
+  @DisplayName("Update Row")
+  void updateRow() {
+    System.out.println("in updateRow");
+    final String VERTEX_TABLE = "vertex";
+    String V_ID = "";
+       
+    // Select row with the max id.
+    String sql = "SELECT max(id) FROM " + VERTEX_TABLE;
+    IResult r = provider.executeSelect(sql);
+    
+    Object o = r.getResultObject();
+    if (o != null) {
+      ResultSet rs = (ResultSet)o;
+      try {
+        if (rs.next()) {
+          V_ID = rs.getString(1);
+        }
+        rs.close();
+      } catch (Exception e) {
+        e.printStackTrace();
+      }
+    }
+
+    // Update the json value in the row containing the max id.
+    JSONObject jo = new JSONObject();
+    jo.put("Goodbye", "World");
+
+    String [] vals = new String [2];
+    vals[0] = jo.toJSONString();
+    vals[1] = V_ID;
+    
+    sql = "UPDATE " + VERTEX_TABLE + " SET json = ? WHERE id = ?";
+    r = null;
+    try {
+      r = provider.executeUpdate(sql, vals);
+    } catch (Exception e) {
+      fail(e.getMessage());
+    }
+
+    // Select updated row
+    sql = "SELECT json FROM " + VERTEX_TABLE + " where id = ?";
+    r = null;
+    try {
+      r = provider.executeSelect(sql, V_ID);
+    } catch (Exception e) {
+      fail(e.getMessage());
+    }
+    o = r.getResultObject();
+
+    if (o != null) {
+      ResultSet rs = (ResultSet)o;
+      try {
+        if (rs.next()) {
+          assertEquals("{\"Goodbye\":\"World\"}", rs.getString("json"));
+        }
+        rs.close();
+      } catch (Exception e) {
+        e.printStackTrace();
+      }
+    }
+  }
+  
+  @Test
   @DisplayName("Test Row Count")
   void getRowCount() {
     System.out.println("in getRowCount");
