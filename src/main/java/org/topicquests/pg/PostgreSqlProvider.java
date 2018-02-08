@@ -311,12 +311,7 @@ public class PostgreSqlProvider extends RootEnvironment
       result.addErrorString(e.getMessage());
     } finally {
       if (s != null) {
-        try {
-          s.close();
-        } catch (Exception x) {
-          logError(x.getMessage(), x);
-          result.addErrorString(x.getMessage());					
-        }
+        this.closePreparedStatement(s, result);
       }
     }
 
@@ -353,12 +348,7 @@ public class PostgreSqlProvider extends RootEnvironment
       result.addErrorString(e.getMessage());
     } finally {
       if (s != null) {
-        try {
-          s.close();
-        } catch (Exception x) {
-          logError(x.getMessage(), x);
-          result.addErrorString(x.getMessage());					
-        }
+        this.closePreparedStatement(s, result);
       }
     }
 
