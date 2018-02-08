@@ -87,7 +87,6 @@ end
 $$;
 
 -- Trigger on insert into users table to encrypt the password.
-DROP TRIGGER IF EXISTS encrypt_password ON tq_authentication.users;
 CREATE TRIGGER encrypt_password
   before insert or update on tq_authentication.users
   for each row
@@ -147,8 +146,9 @@ GRANT SELECT ON tq_contents.proxy TO tq_proxy_ro;
 CREATE TABLE IF NOT EXISTS
 tq_contents.merge_tuple_locators (
   proxyid      locator NOT NULL,
-  mtlocator    locator  -- merge tuple locator: many locators can be
+  mtlocator    locator, -- merge tuple locator: many locators can be
                         -- associated with a proxy
+  PRIMARY KEY (proxyid, mtlocator)
 );
 
 --
@@ -189,6 +189,8 @@ tq_contents.psi (
   proxyid      locator NOT NULL,
   psi          text
 );
+CREATE INDEX IF NOT EXISTS psi_idx
+  ON tq_contents.psi (proxyid, psi);
 
 --
 -- Table to hold properties.
@@ -199,6 +201,8 @@ tq_contents.properties (
   property_key text,
   property_val text
 );
+CREATE INDEX IF NOT EXISTS properties_idx
+  ON tq_contents.properties (proxyid, property_key);
 
 --
 -- Table to hold transitive closure.
@@ -208,6 +212,8 @@ tq_contents.transitive_closure (
   proxyid       locator NOT NULL,
   property_type text
 );
+CREATE INDEX IF NOT EXISTS transitive_closure_idx
+  ON tq_contents.transitive_closure (proxyid, property_type);
 
 --
 -- Table to hold ACL information.
@@ -217,6 +223,8 @@ tq_contents.acls (
   proxyid       locator NOT NULL,
   acl           text
 );
+CREATE INDEX IF NOT EXISTS acls_idx
+  ON tq_contents.acls (proxyid, acl);
 
 --
 -- Table to hold subjects.
@@ -230,6 +238,8 @@ tq_contents.subjects (
   language      text NOT NULL check (length(language) = 2),
   last_edit     TIMESTAMPTZ DEFAULT NOW()
 );
+CREATE INDEX IF NOT EXISTS subjects_idx
+  ON tq_contents.subjects (proxyid, creator);
 
 --
 -- Table to hold body text.
@@ -243,6 +253,8 @@ tq_contents.bodies (
   language      text NOT NULL check (length(language) = 2),
   last_edit     TIMESTAMPTZ DEFAULT NOW()
 );
+CREATE INDEX IF NOT EXISTS bodies_idx
+  ON tq_contents.bodies (proxyid, creator);
 
 --
 -- Table to hold relations.
@@ -255,8 +267,11 @@ tq_contents.relations (
   objectLocator  locator NOT NULL,
   subjectLabel   text,
   objectLabel    text,
-  nodeType       text
+  nodeType       text,
+  icon           text
 );
+CREATE INDEX IF NOT EXISTS relations_idx
+  ON tq_contents.relations (proxyid);
 
 
 --
@@ -268,6 +283,8 @@ tq_contents.proxy_provenence (
   event_time   TIMESTAMPTZ DEFAULT NOW(),
   event        varchar(1024) NOT NULL
 );
+CREATE INDEX IF NOT EXISTS proxy_provenence_idx
+  ON tq_contents.proxy_provenence (proxyid);
 
 GRANT ALL PRIVILEGES ON tq_contents.proxy_provenence TO tq_proxy;
 GRANT SELECT ON tq_contents.proxy_provenence TO tq_proxy_ro;
