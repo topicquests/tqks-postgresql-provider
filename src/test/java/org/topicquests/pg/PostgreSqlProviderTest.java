@@ -8,6 +8,8 @@ import org.junit.jupiter.api.Test;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import org.topicquests.pg.PostgreSqlProvider;
+
+import org.topicquests.support.ResultPojo;
 import org.topicquests.support.api.IResult;
 
 import net.minidev.json.JSONObject;
@@ -106,13 +108,18 @@ public class PostgreSqlProviderTest {
     Object o = r.getResultObject();
     if (o != null) {
       ResultSet rs = (ResultSet)o;
+
       try {
         if (rs.next()) {
           assertEquals("{\"Hello\":\"World\"}", rs.getString("json"));
         }
-        rs.close();
       } catch (Exception e) {
-        e.printStackTrace();
+        fail(e.getMessage());
+      }
+
+      provider.closeResultSet(rs, r);
+      if (r.hasError()) {
+        fail(r.getErrorString());
       }
     }
   }
@@ -154,13 +161,18 @@ public class PostgreSqlProviderTest {
 
     if (o != null) {
       ResultSet rs = (ResultSet)o;
+
       try {
         if (rs.next()) {
           assertEquals("{\"Hello\":\"World\"}", rs.getString("json"));
         }
-        rs.close();
       } catch (Exception e) {
-        e.printStackTrace();
+        fail(e.getMessage());
+      }
+
+      provider.closeResultSet(rs, r);
+      if (r.hasError()) {
+        fail(r.getErrorString());
       }
     }
   }
@@ -177,13 +189,18 @@ public class PostgreSqlProviderTest {
     Object o = r.getResultObject();
     if (o != null) {
       ResultSet rs = (ResultSet)o;
+
       try {
         if (rs.next()) {
           V_ID = rs.getString(1);
         }
-        rs.close();
       } catch (Exception e) {
-        e.printStackTrace();
+        fail(e.getMessage());
+      }
+      
+      provider.closeResultSet(rs, r);
+      if (r.hasError()) {
+        fail(r.getErrorString());
       }
     }
 
@@ -215,13 +232,18 @@ public class PostgreSqlProviderTest {
 
     if (o != null) {
       ResultSet rs = (ResultSet)o;
+
       try {
         if (rs.next()) {
           assertEquals("{\"Goodbye\":\"World\"}", rs.getString("json"));
         }
-        rs.close();
       } catch (Exception e) {
-        e.printStackTrace();
+        fail(e.getMessage());
+      }
+      
+      provider.closeResultSet(rs, r);
+      if (r.hasError()) {
+        fail(r.getErrorString());
       }
     }
   }
@@ -238,13 +260,18 @@ public class PostgreSqlProviderTest {
     Object o = r.getResultObject();
     if (o != null) {
       ResultSet rs = (ResultSet)o;
+
       try {
         if (rs.next()) {
           V_ID = rs.getString(1);
         }
-        rs.close();
       } catch (Exception e) {
-        e.printStackTrace();
+        fail(e.getMessage());
+      }
+
+      provider.closeResultSet(rs, r);
+      if (r.hasError()) {
+        fail(r.getErrorString());
       }
     }
 
@@ -277,13 +304,18 @@ public class PostgreSqlProviderTest {
 
     if (o != null) {
       ResultSet rs = (ResultSet)o;
+
       try {
         if (rs.next()) {
           assertEquals("{\"Goodbye\":\"World\"}", rs.getString("json"));
         }
-        rs.close();
       } catch (Exception e) {
-        e.printStackTrace();
+        fail(e.getMessage());
+      }
+
+      provider.closeResultSet(rs, r);
+      if (r.hasError()) {
+        fail(r.getErrorString());
       }
     }
   }
@@ -371,11 +403,11 @@ public class PostgreSqlProviderTest {
       fail(e.getMessage());
     } finally {
       if (s != null) {
-        try {
-          s.close();
-        }
-        catch (Exception e) {
-          fail(e.getMessage());
+        IResult r = new ResultPojo();
+        
+        provider.closeStatement(s, r);
+        if (r.hasError()) {
+          fail(r.getErrorString());
         }
       }
     }
@@ -383,10 +415,11 @@ public class PostgreSqlProviderTest {
 
   private static void setupRoot() {
     if (conn != null) {
-      try {
-        conn.close();
-      } catch (Exception e) {
-        fail(e.getMessage());
+      IResult r = new ResultPojo();
+
+      provider.closeConnection(conn, r);
+      if (r.hasError()) {
+        fail(r.getErrorString());
       }
     }
 
@@ -404,10 +437,11 @@ public class PostgreSqlProviderTest {
 
   private static void setupTestUser() {
     if (conn != null) {
-      try {
-        conn.close();
-      } catch (Exception e) {
-        fail(e.getMessage());
+      IResult r = new ResultPojo();
+
+      provider.closeConnection(conn, r);
+      if (r.hasError()) {
+        fail(r.getErrorString());
       }
     }
 
@@ -425,10 +459,11 @@ public class PostgreSqlProviderTest {
 
   private static void setupTemplate() {
     if (conn != null) {
-      try {
-        conn.close();
-      } catch (Exception e) {
-        fail(e.getMessage());
+      IResult r = new ResultPojo();
+
+      provider.closeConnection(conn, r);
+      if (r.hasError()) {
+        fail(r.getErrorString());
       }
     }
 
