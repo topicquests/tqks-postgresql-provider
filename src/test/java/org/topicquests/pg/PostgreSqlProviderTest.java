@@ -72,7 +72,15 @@ public class PostgreSqlProviderTest {
   }
 
   @Test
-  @DisplayName("Insert and Select")
+  @DisplayName("SQL tests")
+  void TestAll() {
+    InsertAndSelect();
+    InsertAndSelect2();
+    updateRow1();
+    updateRow2();
+    getRowCount();
+  }
+
   void InsertAndSelect() {
     System.out.println("in InsertAndSelect");
     final String
@@ -109,8 +117,6 @@ public class PostgreSqlProviderTest {
     }
   }
 
-  @Test
-  @DisplayName("Insert and Select #2")
   void InsertAndSelect2() {
     System.out.println("in InsertAndSelect2");
     final String
@@ -159,13 +165,11 @@ public class PostgreSqlProviderTest {
     }
   }
   
-  @Test
-  @DisplayName("Update Row")
-  void updateRow() {
-    System.out.println("in updateRow");
+  void updateRow1() {
+    System.out.println("in updateRow1");
     final String VERTEX_TABLE = "vertex";
     String V_ID = "";
-       
+
     // Select row with the max id.
     String sql = "SELECT max(id) FROM " + VERTEX_TABLE;
     IResult r = provider.executeSelect(sql);
@@ -191,7 +195,7 @@ public class PostgreSqlProviderTest {
     vals[0] = jo.toJSONString();
     vals[1] = V_ID;
     
-    sql = "UPDATE " + VERTEX_TABLE + " SET json = ? WHERE id = ?";
+    sql = "UPDATE " + VERTEX_TABLE + " SET json = to_json(?::json) WHERE id = ?";
     r = null;
     try {
       r = provider.executeUpdate(sql, vals);
@@ -222,8 +226,68 @@ public class PostgreSqlProviderTest {
     }
   }
   
-  @Test
-  @DisplayName("Test Row Count")
+  void updateRow2() {
+    System.out.println("in updateRow2");
+    final String VERTEX_TABLE = "vertex";
+    String V_ID = "";
+       
+    // Select row with the max id.
+    String sql = "SELECT max(id) FROM " + VERTEX_TABLE;
+    IResult r = provider.executeSelect(sql);
+    
+    Object o = r.getResultObject();
+    if (o != null) {
+      ResultSet rs = (ResultSet)o;
+      try {
+        if (rs.next()) {
+          V_ID = rs.getString(1);
+        }
+        rs.close();
+      } catch (Exception e) {
+        e.printStackTrace();
+      }
+    }
+
+    // Update the json value in the row containing the max id.
+    JSONObject jo = new JSONObject();
+    jo.put("Goodbye", "World");
+
+    String [] vals = new String [2];
+    vals[0] = jo.toJSONString();
+    vals[1] = V_ID;
+    
+    sql = "UPDATE " + VERTEX_TABLE + " SET json = '" + jo.toJSONString() +
+        "' WHERE id = '" + V_ID + "'";
+    r = null;
+    try {
+      r = provider.executeUpdate(sql);
+    } catch (Exception e) {
+      fail(e.getMessage());
+    }
+
+    // Select updated row
+    sql = "SELECT json FROM " + VERTEX_TABLE + " where id = ?";
+    r = null;
+    try {
+      r = provider.executeSelect(sql, V_ID);
+    } catch (Exception e) {
+      fail(e.getMessage());
+    }
+    o = r.getResultObject();
+
+    if (o != null) {
+      ResultSet rs = (ResultSet)o;
+      try {
+        if (rs.next()) {
+          assertEquals("{\"Goodbye\":\"World\"}", rs.getString("json"));
+        }
+        rs.close();
+      } catch (Exception e) {
+        e.printStackTrace();
+      }
+    }
+  }
+  
   void getRowCount() {
     System.out.println("in getRowCount");
     final String
