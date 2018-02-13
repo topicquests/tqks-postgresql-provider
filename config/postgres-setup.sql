@@ -21,7 +21,7 @@ CREATE ROLE tq_users_ro; -- read-only access user information
 CREATE ROLE tq_proxy;    -- full access to proxy information
 CREATE ROLE tq_proxy_ro; -- read-only access to proxy information
 
-CREATE USER tq_admin PASSWORD 'md50cc925a0f68135ed505afa9f1aeaf5dd'  -- full access
+CREATE USER tq_admin PASSWORD 'md52c7c554fad386563506b43905bceb7d6'  -- full access
     CREATEDB
     NOINHERIT IN ROLE tq_users, tq_proxy;
 -- GRANT CREATE ON TABLESPACE tq_space TO tq_admin;
@@ -109,7 +109,7 @@ $$;
 -- User log.
 CREATE TABLE IF NOT EXISTS
 tq_authentication.user_log (
-  userid       locator NOT NULL,
+  userid       locator NOT NULL references tq_authentication.users(userid),
   event_time   TIMESTAMPTZ DEFAULT NOW(),
   event        varchar(1024) NOT NULL
 );
@@ -127,8 +127,8 @@ GRANT USAGE ON schema tq_contents TO tq_proxy_ro;
 
 CREATE TABLE IF NOT EXISTS
 tq_contents.proxy (
-  proxyid      locator,
-  userid       locator,
+  proxyid      locator UNIQUE,
+  userid       locator references tq_authentication.users(userid),
   node_type    text,
   url          text,
   is_virtual   boolean DEFAULT false,
@@ -145,7 +145,7 @@ GRANT SELECT ON tq_contents.proxy TO tq_proxy_ro;
 --
 CREATE TABLE IF NOT EXISTS
 tq_contents.merge_tuple_locators (
-  proxyid      locator NOT NULL,
+  proxyid      locator NOT NULL references tq_contents.proxy(proxyid),
   mtlocator    locator, -- merge tuple locator: many locators can be
                         -- associated with a proxy
   PRIMARY KEY (proxyid, mtlocator)
@@ -156,7 +156,7 @@ tq_contents.merge_tuple_locators (
 --
 CREATE TABLE IF NOT EXISTS
 tq_contents.labels (
-  proxyid      locator NOT NULL,
+  proxyid      locator NOT NULL references tq_contents.proxy(proxyid),
   label        text NOT NULL check (length(label) < 1024),
   language     text NOT NULL check (length(language) = 2)
 );
@@ -167,7 +167,7 @@ tq_contents.labels (
 --
 CREATE TABLE IF NOT EXISTS
 tq_contents.details (
-  proxyid      locator NOT NULL,
+  proxyid      locator NOT NULL references tq_contents.proxy(proxyid),
   details      varchar(1024) NOT NULL,
   language     text NOT NULL check (length(language) = 2)
 );
@@ -177,7 +177,7 @@ tq_contents.details (
 --
 CREATE TABLE IF NOT EXISTS
 tq_contents.superclasses (
-  proxyid      locator NOT NULL,
+  proxyid      locator NOT NULL references tq_contents.proxy(proxyid),
   superclass   text  -- superclass locator
 );
 
@@ -186,7 +186,7 @@ tq_contents.superclasses (
 --
 CREATE TABLE IF NOT EXISTS
 tq_contents.psi (
-  proxyid      locator NOT NULL,
+  proxyid      locator NOT NULL references tq_contents.proxy(proxyid),
   psi          text
 );
 CREATE INDEX IF NOT EXISTS psi_idx
@@ -197,7 +197,7 @@ CREATE INDEX IF NOT EXISTS psi_idx
 --
 CREATE TABLE IF NOT EXISTS
 tq_contents.properties (
-  proxyid      locator NOT NULL,
+  proxyid      locator NOT NULL references tq_contents.proxy(proxyid),
   property_key text,
   property_val text
 );
@@ -209,7 +209,7 @@ CREATE INDEX IF NOT EXISTS properties_idx
 --
 CREATE TABLE IF NOT EXISTS
 tq_contents.transitive_closure (
-  proxyid       locator NOT NULL,
+  proxyid       locator NOT NULL references tq_contents.proxy(proxyid),
   property_type text
 );
 CREATE INDEX IF NOT EXISTS transitive_closure_idx
@@ -220,7 +220,7 @@ CREATE INDEX IF NOT EXISTS transitive_closure_idx
 --
 CREATE TABLE IF NOT EXISTS
 tq_contents.acls (
-  proxyid       locator NOT NULL,
+  proxyid       locator NOT NULL references tq_contents.proxy(proxyid),
   acl           text
 );
 CREATE INDEX IF NOT EXISTS acls_idx
@@ -231,7 +231,7 @@ CREATE INDEX IF NOT EXISTS acls_idx
 --
 CREATE TABLE IF NOT EXISTS
 tq_contents.subjects (
-  proxyid       locator NOT NULL,
+  proxyid       locator NOT NULL references tq_contents.proxy(proxyid),
   creator       locator,  -- user locator
   subject       text,
   comment       text,
@@ -246,7 +246,7 @@ CREATE INDEX IF NOT EXISTS subjects_idx
 --
 CREATE TABLE IF NOT EXISTS
 tq_contents.bodies (
-  proxyid       locator NOT NULL,
+  proxyid       locator NOT NULL references tq_contents.proxy(proxyid),
   creator       locator,  -- user locator
   body          text,
   comment       text,
@@ -261,7 +261,7 @@ CREATE INDEX IF NOT EXISTS bodies_idx
 --
 CREATE TABLE IF NOT EXISTS
 tq_contents.relations (
-  proxyid        locator NOT NULL,
+  proxyid        locator NOT NULL references tq_contents.proxy(proxyid),
   typeLocator    locator NOT NULL,
   subjectLocator locator NOT NULL,
   objectLocator  locator NOT NULL,
@@ -279,7 +279,7 @@ CREATE INDEX IF NOT EXISTS relations_idx
 --
 CREATE TABLE IF NOT EXISTS
 tq_contents.proxy_provenence (
-  proxyid      locator NOT NULL,
+  proxyid      locator NOT NULL references tq_contents.proxy(proxyid),
   event_time   TIMESTAMPTZ DEFAULT NOW(),
   event        varchar(1024) NOT NULL
 );
