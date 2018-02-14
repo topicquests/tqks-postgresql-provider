@@ -99,6 +99,26 @@ public class PostgreSqlProvider extends RootEnvironment
     }
   }
 
+  public void beginTransaction() {
+    try {
+      if (conn != null) {
+        conn.setAutoCommit(false);
+      }
+    } catch (Exception e) {
+      logError(e.getMessage(), e);
+    }
+  }
+
+  public void endTransaction() {
+    try {
+      if (conn != null) {
+        conn.commit();
+      }
+    } catch (Exception e) {
+      logError(e.getMessage(), e);
+    }
+  }
+
   public Properties getProps() {
     return props;
   }

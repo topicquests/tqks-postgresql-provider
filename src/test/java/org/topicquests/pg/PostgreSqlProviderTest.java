@@ -109,7 +109,9 @@ public class PostgreSqlProviderTest {
     // Insert
     String sql = "INSERT INTO " + VERTEX_TABLE +
         " values('" + V_ID + "', '" + jo.toJSONString() + "')";
+    provider.beginTransaction();
     IResult r = provider.executeSQL(sql);
+    provider.endTransaction();
     
     // Select
     sql = "SELECT json FROM " + VERTEX_TABLE + " where id='" + V_ID + "'";
@@ -155,7 +157,9 @@ public class PostgreSqlProviderTest {
     String sql = "INSERT INTO " + VERTEX_TABLE + " values(?, to_json(?::json))";
     IResult r = null;
     try {
+      provider.beginTransaction();
       r = provider.executeSQL(sql, vals);
+      provider.endTransaction();
     } catch (Exception e) {
       fail(e.getMessage());
     }
@@ -194,7 +198,9 @@ public class PostgreSqlProviderTest {
 
     // Select row with the max id.
     String sql = "SELECT max(id) FROM " + VERTEX_TABLE;
+    provider.beginTransaction();
     IResult r = provider.executeSelect(sql);
+    provider.endTransaction();
     
     Object o = r.getResultObject();
     if (o != null) {
@@ -225,7 +231,9 @@ public class PostgreSqlProviderTest {
     sql = "UPDATE " + VERTEX_TABLE + " SET json = to_json(?::json) WHERE id = ?";
     r = null;
     try {
+      provider.beginTransaction();
       r = provider.executeUpdate(sql, vals);
+      provider.endTransaction();
     } catch (Exception e) {
       fail(e.getMessage());
     }
@@ -297,7 +305,9 @@ public class PostgreSqlProviderTest {
         "' WHERE id = '" + V_ID + "'";
     r = null;
     try {
+      provider.beginTransaction();
       r = provider.executeUpdate(sql);
+      provider.endTransaction();
     } catch (Exception e) {
       fail(e.getMessage());
     }
