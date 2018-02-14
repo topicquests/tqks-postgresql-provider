@@ -91,6 +91,10 @@ public class PostgreSqlProviderTest {
   @DisplayName("TQ Proxy Connection test")
   void TestTQProxy() {
     setupTQAdminUser();
+    InsertAndSelect3();
+    DeleteUser1();
+    closeConnection();
+    provider.shutDown();
   }
 
   void InsertAndSelect() {
@@ -188,6 +192,77 @@ public class PostgreSqlProviderTest {
       if (r.hasError()) {
         fail(r.getErrorString());
       }
+    }
+  }
+  
+  void InsertAndSelect3() {
+    System.out.println("in InsertAndSelect3");
+    final String
+        USERS_TABLE	= "tq_authentication.users";
+
+    assertEquals("tq_admin", provider.getUser());
+
+    setUserRole();
+
+    // Insert into users table
+    String sql = "INSERT INTO " + USERS_TABLE +
+        " values('locator', 'test@email.org', 'testpwd', 'handle', " +
+        "'Joe', 'User', 'en', true)";
+    IResult r = null;
+    try {
+      provider.beginTransaction();
+      r = provider.executeSQL(sql);
+      provider.endTransaction();
+    } catch (Exception e) {
+      fail(e.getMessage());
+    }
+
+    // Select
+    sql = "SELECT * FROM " + USERS_TABLE + " WHERE locator = ?";
+    try {
+      r = provider.executeSelect(sql, "locator");
+    } catch (Exception e) {
+      fail(e.getMessage());
+    }
+    Object o = r.getResultObject();
+
+    if (o != null) {
+      ResultSet rs = (ResultSet)o;
+
+      try {
+        if (rs.next()) {
+          assertEquals("handle", rs.getString("handle"));
+        }
+      } catch (Exception e) {
+        fail(e.getMessage());
+      }
+
+      provider.closeResultSet(rs, r);
+      if (r.hasError()) {
+        fail(r.getErrorString());
+      }
+    }
+  }
+  
+  void DeleteUser1() {
+    System.out.println("in DeleteUser1");
+    final String
+        USERS_TABLE	= "tq_authentication.users";
+
+    assertEquals("tq_admin", provider.getUser());
+
+    setUserRole();
+
+    // Insert into users table
+    String sql = "DELETE FROM " + USERS_TABLE + " WHERE handle = 'handle'";
+
+    IResult r = null;
+    try {
+      provider.beginTransaction();
+      r = provider.executeSQL(sql);
+      provider.endTransaction();
+    } catch (Exception e) {
+      fail(e.getMessage());
     }
   }
   
@@ -481,6 +556,22 @@ public class PostgreSqlProviderTest {
     } catch (Exception e) {
       fail(e.getMessage());
     }
+  }
+
+  private void setUserRole() {
+    String[] setRoleStmt = {
+      "SET ROLE tq_admin"
+    };
+
+    executeStatements(setRoleStmt);
+  }
+
+  private void setProxyRole() {
+    String[] setProxyStmt = {
+      "SET ROLE tq_proxy"
+    };
+
+    executeStatements(setProxyStmt);
   }
 
   private void setupTemplate() {
