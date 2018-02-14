@@ -4,7 +4,7 @@
 	<!-- URL for the server -->
 	<parameter name="DatabaseURL" value = "localhost" />
 	<parameter name="DatabasePort" value = "28015" />
-	<parameter name="DbUser" value = "testuser" />
-	<parameter name="DbPwd" value = "testpwd" />
+	<parameter name="DbUser" value = "tq_admin" />
+	<parameter name="DbPwd" value = "tq-admin-pwd" />
 
 </properties>

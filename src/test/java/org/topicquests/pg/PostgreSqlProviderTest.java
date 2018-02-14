@@ -24,9 +24,8 @@ import java.sql.Statement;
 import java.util.Properties;
 
 public class PostgreSqlProviderTest {
-  @BeforeAll
-  @DisplayName("Initialize Test Database")
-  static void initAll() {
+
+  private void initAll() {
     System.out.println("in initAll");
     String[] testCreation = {
       "CREATE ROLE testuser WITH LOGIN PASSWORD 'testpwd'",
@@ -48,7 +47,7 @@ public class PostgreSqlProviderTest {
     setupDBTables();
   }
 
-  private static void setupDBTables() {
+  private void setupDBTables() {
     System.out.println("in setupDBTables");
     assertEquals("testuser", props.getProperty("user"));
 
@@ -76,11 +75,22 @@ public class PostgreSqlProviderTest {
   @Test
   @DisplayName("SQL tests")
   void TestAll() {
+    initAll();
     InsertAndSelect();
     InsertAndSelect2();
     updateRow1();
     updateRow2();
     getRowCount();
+    tearDownAll();
+  }
+
+  //
+  // Test the connection to the topic map proxy database.
+  //
+  @Test
+  @DisplayName("TQ Proxy Connection test")
+  void TestTQProxy() {
+    setupTQAdminUser();
   }
 
   void InsertAndSelect() {
@@ -348,9 +358,7 @@ public class PostgreSqlProviderTest {
     }
   }
   
-  @AfterAll
-  @DisplayName("Tear Down Test Database")
-  static void tearDownAll() {
+  private void tearDownAll() {
     System.out.println("in tearDownAll");
     // Drop the testuser provider
     provider.shutDown();
@@ -389,6 +397,7 @@ public class PostgreSqlProviderTest {
   private static final String ROOT_DB = "postgres";
   private static final String TEST_DB = "testdb";
   private static final String TEMPLATE_DB = "template1";
+  private static final String TQ_ADMIN_DB = "tq_database";
 
   static void executeStatements(String[] stmts) {
     Statement s = null;
@@ -449,6 +458,28 @@ public class PostgreSqlProviderTest {
     props = provider.getProps();
     props.setProperty("user", "testuser");
     props.setProperty("password", "testpwd");
+
+    try {
+      conn = provider.getConnection();
+    } catch (Exception e) {
+      fail(e.getMessage());
+    }
+  }
+
+  private static void setupTQAdminUser() {
+    if (conn != null) {
+      IResult r = new ResultPojo();
+
+      provider.closeConnection(conn, r);
+      if (r.hasError()) {
+        fail(r.getErrorString());
+      }
+    }
+
+    provider = new PostgreSqlProvider(TEMPLATE_DB);
+    props = provider.getProps();
+    props.setProperty("user", "tq_admin");
+    props.setProperty("password", "tq-admin-pwd");
 
     try {
       conn = provider.getConnection();
