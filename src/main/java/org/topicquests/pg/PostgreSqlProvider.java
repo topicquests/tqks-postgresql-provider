@@ -16,6 +16,8 @@ import org.topicquests.support.ResultPojo;
 import org.topicquests.support.RootEnvironment;
 import org.topicquests.support.api.IResult;
 
+import org.postgresql.ds.PGPoolingDataSource;
+
 /**
  * @author jackpark
  *
@@ -29,7 +31,9 @@ public class PostgreSqlProvider extends RootEnvironment
    * Pools Connections for each local thread
    * Must be closed when the thread terminates
    */
-  private ThreadLocal<Connection> localMapConnection = new ThreadLocal<Connection>();
+  // private ThreadLocal<Connection> localMapConnection = new ThreadLocal<Connection>();
+  private Connection conn = null;
+  private PGPoolingDataSource source = null;
 
   public PostgreSqlProvider(String dbName) {
     super("postgress-props.xml", "logger.properties");
@@ -48,6 +52,25 @@ public class PostgreSqlProvider extends RootEnvironment
     if (dbPwd != null && !dbPwd.equals(""))
       props.setProperty("password",dbPwd);
 
+    source = new PGPoolingDataSource();
+    source.setDataSourceName(dbName + " - TQ Data Source");
+    source.setServerName(dbUrl);
+    source.setDatabaseName(dbName);
+    source.setUser(dbUser);
+    source.setPassword(dbPwd);
+    source.setMaxConnections(10);
+  }
+
+  public String getUser() {
+    return source.getUser();
+  }
+
+  public void setUser(String user) {
+    source.setUser(user);
+  }
+
+  public void setPassword(String password) {
+    source.setPassword(password);
   }
 
   /////////////////
@@ -56,33 +79,23 @@ public class PostgreSqlProvider extends RootEnvironment
 
   public Connection getConnection() throws Exception {
     // System.out.println("GETCON");
-    return DriverManager.getConnection(urx, props);
+    // return DriverManager.getConnection(urx, props);
+    conn = source.getConnection();
+    return conn;
   }
 
   private Connection getMapConnection() throws Exception {
-    synchronized (localMapConnection) {
-      Connection con = this.localMapConnection.get();
-
-      //because we don't "setInitialValue", this returns null if nothing for this thread
-      if (con == null) {
-        con = getConnection();
-        // System.out.println("GETMAPCONNECTION " + con);
-        localMapConnection.set(con);
-      }
-      return con;
-    }
+    return getConnection();
   }
 
   private void closeLocalConnection() {
     try {
-      synchronized (localMapConnection) {
-        Connection con = this.localMapConnection.get();
-        if (con != null)
-          con.close();
-        localMapConnection.remove();
-        //  localMapConnection.set(null);
+      if (conn != null) {
+        conn.close();
+        conn = null;
       }
     } catch (SQLException e) {
+      conn = null;
     }
   }
 
@@ -101,7 +114,7 @@ public class PostgreSqlProvider extends RootEnvironment
    */
   @Override
   public void shutDown() {
-    closeLocalConnection();
+    source.close();
   }
 
   /////////////////////
@@ -117,7 +130,9 @@ public class PostgreSqlProvider extends RootEnvironment
       return errorResult(e);
     }
 
-    return executeSQL(conn, sql);
+    IResult rset = executeSQL(conn, sql);
+    closeConnection(conn, rset);
+    return rset;
   }
 	
   @Override
@@ -140,6 +155,7 @@ public class PostgreSqlProvider extends RootEnvironment
         result.addErrorString(r.getErrorString());
     }
 
+    closeConnection(conn, result);
     return result;
   }
 	
@@ -178,7 +194,9 @@ public class PostgreSqlProvider extends RootEnvironment
       return errorResult(e);
     }
     
-    return executeCount(conn, sql);
+    IResult rset = executeCount(conn, sql);
+    closeConnection(conn, rset);
+    return rset;
   }
 
   private IResult executeCount(Connection conn, String sql) {
@@ -220,7 +238,9 @@ public class PostgreSqlProvider extends RootEnvironment
       return errorResult(e);
     }
 
-    return executeUpdate(conn, sql);
+    IResult rset = executeUpdate(conn, sql);
+    closeConnection(conn, rset);
+    return rset;
   }
 	
   @Override
@@ -258,7 +278,9 @@ public class PostgreSqlProvider extends RootEnvironment
       return errorResult(e);
     }
 
-    return executeSelect(conn, sql);
+    IResult rset = executeSelect(conn, sql);
+    closeConnection(conn, rset);
+    return rset;
   }
 	
   @Override
@@ -273,6 +295,17 @@ public class PostgreSqlProvider extends RootEnvironment
     } catch (Exception e) {
       logError(e.getMessage(), e);
       result.addErrorString(e.getMessage());
+    } finally {
+      if (conn != null) {
+        try {
+          conn.close();
+        } catch (Exception e) {
+          logError(e.getMessage(), e);
+          result.addErrorString(e.getMessage());
+        } finally {
+          conn = null;
+        }
+      }
     }
     return result;
   }
@@ -291,7 +324,9 @@ public class PostgreSqlProvider extends RootEnvironment
       return errorResult(e);
     }
 
-    return executeSQL(conn, sql, vals);
+    IResult rset = executeSQL(conn, sql, vals);
+    closeConnection(conn, rset);
+    return rset;
   }
 	
   @Override
@@ -328,7 +363,9 @@ public class PostgreSqlProvider extends RootEnvironment
       return errorResult(e);
     }
 
-    return executeUpdate(conn, sql, vals);
+    IResult rset = executeUpdate(conn, sql, vals);
+    closeConnection(conn, rset);
+    return rset;
   }
 	
   @Override
@@ -365,7 +402,9 @@ public class PostgreSqlProvider extends RootEnvironment
       return errorResult(e);
     }
 
-    return executeSelect(conn, sql, vals);
+    IResult rset = executeSelect(conn, sql, vals);
+    closeConnection(conn, rset);
+    return rset;
   }
 	
   @Override

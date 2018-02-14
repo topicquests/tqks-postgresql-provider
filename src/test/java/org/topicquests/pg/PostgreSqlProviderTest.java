@@ -34,13 +34,13 @@ public class PostgreSqlProviderTest {
 
     setupRoot();
 
-    try {
-      conn = provider.getConnection();
-    } catch (Exception e) {
-      fail(e.getMessage());
-    }
+    // try {
+    //   conn = provider.getConnection();
+    // } catch (Exception e) {
+    //   fail(e.getMessage());
+    // }
     executeStatements(testCreation);
-
+    closeConnection();
     provider.shutDown();
 
     setupTestUser();
@@ -49,7 +49,7 @@ public class PostgreSqlProviderTest {
 
   private void setupDBTables() {
     System.out.println("in setupDBTables");
-    assertEquals("testuser", props.getProperty("user"));
+    assertEquals("testuser", provider.getUser());
 
     final String [] tableSchema = {
       "DROP INDEX IF EXISTS vid",
@@ -100,7 +100,7 @@ public class PostgreSqlProviderTest {
         EDGE_TABLE      = "edge",
         V_ID            = Long.toString(System.currentTimeMillis());
 
-    assertEquals("testuser", props.getProperty("user"));
+    assertEquals("testuser", provider.getUser());
 
     // Generate Some SQL
     JSONObject jo = new JSONObject();
@@ -141,7 +141,7 @@ public class PostgreSqlProviderTest {
         EDGE_TABLE      = "edge",
         V_ID            = Long.toString(System.currentTimeMillis());
 
-    assertEquals("testuser", props.getProperty("user"));
+    assertEquals("testuser", provider.getUser());
 
     // Generate Some SQL
     JSONObject jo = new JSONObject();
@@ -337,7 +337,7 @@ public class PostgreSqlProviderTest {
         EDGE_TABLE      = "edge",
         V_ID            = Long.toString(System.currentTimeMillis());
 
-    assertEquals("testuser", props.getProperty("user"));
+    assertEquals("testuser", provider.getUser());
 
     // Select
     String sql = "SELECT * FROM " + VERTEX_TABLE;
@@ -361,6 +361,7 @@ public class PostgreSqlProviderTest {
   private void tearDownAll() {
     System.out.println("in tearDownAll");
     // Drop the testuser provider
+    closeConnection();
     provider.shutDown();
 
     // Create a new provider to drop the test databases.
@@ -372,6 +373,7 @@ public class PostgreSqlProviderTest {
     };
 
     executeStatements(testDropDBs);
+    closeConnection();
     provider.shutDown();
 
     String[] testDropUser = {
@@ -384,6 +386,7 @@ public class PostgreSqlProviderTest {
       fail(e.getMessage());
     }
     executeStatements(testDropUser);
+    closeConnection();
     provider.shutDown();
   }
 
@@ -422,7 +425,7 @@ public class PostgreSqlProviderTest {
     }
   }
 
-  private static void setupRoot() {
+  private void closeConnection() {
     if (conn != null) {
       IResult r = new ResultPojo();
 
@@ -430,12 +433,14 @@ public class PostgreSqlProviderTest {
       if (r.hasError()) {
         fail(r.getErrorString());
       }
+      conn = null;
     }
-
+  }
+  
+  private void setupRoot() {
     provider = new PostgreSqlProvider(ROOT_DB);
-    props = provider.getProps();
-    props.setProperty("user", "postgres");
-    props.setProperty("password", "postgres");
+    provider.setUser("postgres");
+    provider.setPassword("postgres");
 
     try {
       conn = provider.getConnection();
@@ -444,20 +449,10 @@ public class PostgreSqlProviderTest {
     }
   }
 
-  private static void setupTestUser() {
-    if (conn != null) {
-      IResult r = new ResultPojo();
-
-      provider.closeConnection(conn, r);
-      if (r.hasError()) {
-        fail(r.getErrorString());
-      }
-    }
-
+  private void setupTestUser() {
     provider = new PostgreSqlProvider(TEST_DB);
-    props = provider.getProps();
-    props.setProperty("user", "testuser");
-    props.setProperty("password", "testpwd");
+    provider.setUser("testuser");
+    provider.setPassword("testpwd");
 
     try {
       conn = provider.getConnection();
@@ -466,20 +461,10 @@ public class PostgreSqlProviderTest {
     }
   }
 
-  private static void setupTQAdminUser() {
-    if (conn != null) {
-      IResult r = new ResultPojo();
-
-      provider.closeConnection(conn, r);
-      if (r.hasError()) {
-        fail(r.getErrorString());
-      }
-    }
-
-    provider = new PostgreSqlProvider(TEMPLATE_DB);
-    props = provider.getProps();
-    props.setProperty("user", "tq_admin");
-    props.setProperty("password", "tq-admin-pwd");
+  private void setupTQAdminUser() {
+    provider = new PostgreSqlProvider(TQ_ADMIN_DB);
+    provider.setUser("tq_admin");
+    provider.setPassword("tq-admin-pwd");
 
     try {
       conn = provider.getConnection();
@@ -488,20 +473,10 @@ public class PostgreSqlProviderTest {
     }
   }
 
-  private static void setupTemplate() {
-    if (conn != null) {
-      IResult r = new ResultPojo();
-
-      provider.closeConnection(conn, r);
-      if (r.hasError()) {
-        fail(r.getErrorString());
-      }
-    }
-
+  private void setupTemplate() {
     provider = new PostgreSqlProvider(TEMPLATE_DB);
-    props = provider.getProps();
-    props.setProperty("user", "testuser");
-    props.setProperty("password", "testpwd");
+    provider.setUser("testuser");
+    provider.setPassword("testpwd");
 
     try {
       conn = provider.getConnection();
