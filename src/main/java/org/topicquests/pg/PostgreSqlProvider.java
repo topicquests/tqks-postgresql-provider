@@ -92,9 +92,9 @@ public class PostgreSqlProvider extends RootEnvironment
     try {
       if (conn != null) {
         conn.close();
-        conn = null;
       }
     } catch (SQLException e) {
+    } finally {
       conn = null;
     }
   }

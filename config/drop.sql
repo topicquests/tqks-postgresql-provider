@@ -3,13 +3,9 @@ SET ROLE tq_admin;
 
 \c tq_database
 
-DROP INDEX IF EXISTS users_idx;
-
-DROP TABLE tq_contents.proxy;
 DROP SCHEMA tq_contents CASCADE;
-
-DROP TABLE tq_authentication.users;
 DROP SCHEMA tq_authentication CASCADE;
+DROP SCHEMA audit CASCADE;
 
 \c postgres
 
