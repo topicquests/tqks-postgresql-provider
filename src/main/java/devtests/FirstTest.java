@@ -39,7 +39,7 @@ public class FirstTest {
 	 * 
 	 */
 	public FirstTest() {
-		provider = new PostgreSqlProvider(DB_NAME);
+                provider = new PostgreSqlProvider(DB_NAME, "FirstTestSchema");
 		IResult r = provider.validateDatabase(tableSchema);
 		System.out.println("AAA "+r.getErrorString());
 		provider.shutDown();

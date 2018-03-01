@@ -35,13 +35,14 @@ public class PostgreSqlProvider extends RootEnvironment
   private Connection conn = null;
   private PGPoolingDataSource source = null;
 
-  public PostgreSqlProvider(String dbName) {
+  public PostgreSqlProvider(String dbName, String dbSchema) {
     super("postgress-props.xml", "logger.properties");
     
     String dbUrl = getStringProperty("DatabaseURL");
     String dbPort = getStringProperty("DatabasePort");
     String dbUser = getStringProperty("DbUser");
     String dbPwd = getStringProperty("DbPwd");
+    int    clientCacheSize = Integer.parseInt(getStringProperty("ClientCacheSize"));
     
     urx = "jdbc:postgresql://" + dbUrl + /*":"+_dbPort+*/ "/" + dbName;
     
@@ -53,7 +54,7 @@ public class PostgreSqlProvider extends RootEnvironment
       props.setProperty("password",dbPwd);
 
     source = new PGPoolingDataSource();
-    source.setDataSourceName(dbName + " - TQ Data Source");
+    source.setDataSourceName(dbSchema + " - TQ Data Source");
     source.setServerName(dbUrl);
     source.setDatabaseName(dbName);
     source.setUser(dbUser);

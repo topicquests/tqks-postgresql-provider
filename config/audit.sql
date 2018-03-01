@@ -26,23 +26,23 @@ COMMENT ON SCHEMA audit IS 'Out-of-table audit/history logging tables and trigge
 -- indexes and do your analysis.
 --
 CREATE TABLE audit.logged_actions (
-    event_id bigserial primary key,
-    schema_name text not null,
-    table_name text not null,
-    relid oid not null,
-    session_user_name text,
-    action_tstamp_tx TIMESTAMP WITH TIME ZONE NOT NULL,
-    action_tstamp_stm TIMESTAMP WITH TIME ZONE NOT NULL,
-    action_tstamp_clk TIMESTAMP WITH TIME ZONE NOT NULL,
-    transaction_id bigint,
-    application_name text,
-    client_addr inet,
-    client_port integer,
-    client_query text,
-    action TEXT NOT NULL CHECK (action IN ('I','D','U', 'T')),
-    row_data hstore,
-    changed_fields hstore,
-    statement_only boolean not null
+  event_id bigserial primary key,
+  schema_name text not null,
+  table_name text not null,
+  relid oid not null,
+  session_user_name text,
+  action_tstamp_tx TIMESTAMP WITH TIME ZONE NOT NULL,
+  action_tstamp_stm TIMESTAMP WITH TIME ZONE NOT NULL,
+  action_tstamp_clk TIMESTAMP WITH TIME ZONE NOT NULL,
+  transaction_id bigint,
+  application_name text,
+  client_addr inet,
+  client_port integer,
+  client_query text,
+  action TEXT NOT NULL CHECK (action IN ('I','D','U', 'T')),
+  row_data hstore,
+  changed_fields hstore,
+  statement_only boolean not null
 );
 
 REVOKE ALL ON audit.logged_actions FROM public;

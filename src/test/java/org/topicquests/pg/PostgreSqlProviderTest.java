@@ -523,7 +523,7 @@ public class PostgreSqlProviderTest {
   }
   
   private void setupRoot() {
-    provider = new PostgreSqlProvider(ROOT_DB);
+    provider = new PostgreSqlProvider(ROOT_DB, "RootSchema");
     provider.setUser("postgres");
     provider.setPassword("postgres");
 
@@ -535,7 +535,7 @@ public class PostgreSqlProviderTest {
   }
 
   private void setupTestUser() {
-    provider = new PostgreSqlProvider(TEST_DB);
+    provider = new PostgreSqlProvider(TEST_DB, "UserSchema");
     provider.setUser("testuser");
     provider.setPassword("testpwd");
 
@@ -547,7 +547,7 @@ public class PostgreSqlProviderTest {
   }
 
   private void setupTQAdminUser() {
-    provider = new PostgreSqlProvider(TQ_ADMIN_DB);
+    provider = new PostgreSqlProvider(TQ_ADMIN_DB, "AdminSchema");
     provider.setUser("tq_admin");
     provider.setPassword("tq-admin-pwd");
 
@@ -575,7 +575,7 @@ public class PostgreSqlProviderTest {
   }
 
   private void setupTemplate() {
-    provider = new PostgreSqlProvider(TEMPLATE_DB);
+    provider = new PostgreSqlProvider(TEMPLATE_DB, "TemplateSchema");
     provider.setUser("testuser");
     provider.setPassword("testpwd");
 

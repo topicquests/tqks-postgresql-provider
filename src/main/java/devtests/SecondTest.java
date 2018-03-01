@@ -26,7 +26,7 @@ public class SecondTest {
 	 * 
 	 */
 	public SecondTest() {
-		provider = new PostgreSqlProvider(DB_NAME);
+                provider = new PostgreSqlProvider(DB_NAME, "SecondTestSchema");
 		// Generate Some SQL
 		JSONObject jo = new JSONObject();
 		jo.put("Hello", "World");

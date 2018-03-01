@@ -26,7 +26,7 @@ public class ThirdTest {
 	 * 
 	 */
 	public ThirdTest() {
-		provider = new PostgreSqlProvider(DB_NAME);
+                provider = new PostgreSqlProvider(DB_NAME, "ThirdTestSchema");
 		// Generate Some SQL
 		JSONObject jo = new JSONObject();
 		jo.put("Hello", "World");
