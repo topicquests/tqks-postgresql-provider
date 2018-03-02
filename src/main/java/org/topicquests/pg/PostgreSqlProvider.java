@@ -53,6 +53,7 @@ public class PostgreSqlProvider extends RootEnvironment
     if (dbPwd != null && !dbPwd.equals(""))
       props.setProperty("password",dbPwd);
 
+    System.out.println("--- Setting up connection pool ---");
     source = new PGPoolingDataSource();
     source.setDataSourceName(dbSchema + " - TQ Data Source");
     source.setServerName(dbUrl);
@@ -78,14 +79,14 @@ public class PostgreSqlProvider extends RootEnvironment
   // connection handling
   ////////////////
 
-  public Connection getConnection() throws Exception {
+  public Connection getConnection() throws SQLException {
     // System.out.println("GETCON");
     // return DriverManager.getConnection(urx, props);
     conn = source.getConnection();
     return conn;
   }
 
-  private Connection getMapConnection() throws Exception {
+  private Connection getMapConnection() throws SQLException {
     return getConnection();
   }
 
@@ -105,7 +106,7 @@ public class PostgreSqlProvider extends RootEnvironment
       if (conn != null) {
         conn.setAutoCommit(false);
       }
-    } catch (Exception e) {
+    } catch (SQLException e) {
       logError(e.getMessage(), e);
     }
   }
@@ -115,7 +116,7 @@ public class PostgreSqlProvider extends RootEnvironment
       if (conn != null) {
         conn.commit();
       }
-    } catch (Exception e) {
+    } catch (SQLException e) {
       logError(e.getMessage(), e);
     }
   }
@@ -124,7 +125,7 @@ public class PostgreSqlProvider extends RootEnvironment
     return props;
   }
 
-  private IResult errorResult(Exception e) {
+  private IResult errorResult(SQLException e) {
     IResult r = new ResultPojo();
     r.addErrorString(e.getMessage());
     return r;
@@ -147,7 +148,7 @@ public class PostgreSqlProvider extends RootEnvironment
     
     try {
       conn = getMapConnection();
-    } catch (Exception e) {
+    } catch (SQLException e) {
       return errorResult(e);
     }
 
@@ -162,7 +163,7 @@ public class PostgreSqlProvider extends RootEnvironment
 
     try {
       conn = getMapConnection();
-    } catch (Exception e) {
+    } catch (SQLException e) {
       return errorResult(e);
     }
 
@@ -188,14 +189,14 @@ public class PostgreSqlProvider extends RootEnvironment
     try {
       s = conn.createStatement();
       s.execute(sql);
-    } catch (Exception e) {
+    } catch (SQLException e) {
       logError(e.getMessage(), e);
       result.addErrorString(e.getMessage());
     } finally {
       if (s != null) {
         try {
           s.close();
-        } catch (Exception x) {
+        } catch (SQLException x) {
           logError(x.getMessage(), x);
           result.addErrorString(x.getMessage());					
         }
@@ -211,7 +212,7 @@ public class PostgreSqlProvider extends RootEnvironment
 
     try {
       conn = getMapConnection();
-    } catch (Exception e) {
+    } catch (SQLException e) {
       return errorResult(e);
     }
     
@@ -232,14 +233,14 @@ public class PostgreSqlProvider extends RootEnvironment
       rs.last();
       System.out.println("count: " + rs.getRow());
       result.setResultObject(new Long(rs.getRow()));
-    } catch (Exception e) {
+    } catch (SQLException e) {
       logError(e.getMessage(), e);
       result.addErrorString(e.getMessage());
     } finally {
       if (s != null) {
         try {
           s.close();
-        } catch (Exception x) {
+        } catch (SQLException x) {
           logError(x.getMessage(), x);
           result.addErrorString(x.getMessage());					
         }
@@ -255,7 +256,7 @@ public class PostgreSqlProvider extends RootEnvironment
     
     try {
       conn = getMapConnection();
-    } catch (Exception e) {
+    } catch (SQLException e) {
       return errorResult(e);
     }
 
@@ -272,14 +273,14 @@ public class PostgreSqlProvider extends RootEnvironment
     try {
       s = conn.createStatement();
       s.executeUpdate(sql);
-    } catch (Exception e) {
+    } catch (SQLException e) {
       logError(e.getMessage(), e);
       result.addErrorString(e.getMessage());
     } finally {
       if (s != null) {
         try {
           s.close();
-        } catch (Exception x) {
+        } catch (SQLException x) {
           logError(x.getMessage(), x);
           result.addErrorString(x.getMessage());					
         }
@@ -295,7 +296,7 @@ public class PostgreSqlProvider extends RootEnvironment
 
     try {
       conn = getMapConnection();
-    } catch (Exception e) {
+    } catch (SQLException e) {
       return errorResult(e);
     }
 
@@ -313,14 +314,14 @@ public class PostgreSqlProvider extends RootEnvironment
       s = conn.createStatement();
       ResultSet rs = s.executeQuery(sql);
       result.setResultObject(rs);
-    } catch (Exception e) {
+    } catch (SQLException e) {
       logError(e.getMessage(), e);
       result.addErrorString(e.getMessage());
     } finally {
       if (conn != null) {
         try {
           conn.close();
-        } catch (Exception e) {
+        } catch (SQLException e) {
           logError(e.getMessage(), e);
           result.addErrorString(e.getMessage());
         } finally {
@@ -341,7 +342,7 @@ public class PostgreSqlProvider extends RootEnvironment
 
     try {
       conn = getMapConnection();
-    } catch (Exception e) {
+    } catch (SQLException e) {
       return errorResult(e);
     }
 
@@ -362,7 +363,7 @@ public class PostgreSqlProvider extends RootEnvironment
         s.setString(i+1, vals[i]);
       }
       s.execute();
-    } catch (Exception e) {
+    } catch (SQLException e) {
       logError(e.getMessage(), e);
       result.addErrorString(e.getMessage());
     } finally {
@@ -380,7 +381,7 @@ public class PostgreSqlProvider extends RootEnvironment
 
     try {
       conn = getMapConnection();
-    } catch (Exception e) {
+    } catch (SQLException e) {
       return errorResult(e);
     }
 
@@ -401,7 +402,7 @@ public class PostgreSqlProvider extends RootEnvironment
         s.setString(i+1, vals[i]);
       }
       s.executeUpdate();
-    } catch (Exception e) {
+    } catch (SQLException e) {
       logError(e.getMessage(), e);
       result.addErrorString(e.getMessage());
     } finally {
@@ -419,7 +420,7 @@ public class PostgreSqlProvider extends RootEnvironment
 
     try {
       conn = getMapConnection();
-    } catch (Exception e) {
+    } catch (SQLException e) {
       return errorResult(e);
     }
 
@@ -441,7 +442,7 @@ public class PostgreSqlProvider extends RootEnvironment
       }
       ResultSet rs = s.executeQuery();
       result.setResultObject(rs);
-    } catch (Exception e) {
+    } catch (SQLException e) {
       logError(e.getMessage(), e);
       result.addErrorString(e.getMessage());
     }
@@ -470,7 +471,7 @@ public class PostgreSqlProvider extends RootEnvironment
         // System.out.println("EXPORTING "+sql[i]);
         s.execute(sql[i]);
       }
-    } catch (Exception x) {
+    } catch (SQLException x) {
       logError(x.getMessage(), x);
       x.printStackTrace();
       throw new RuntimeException(x);
@@ -479,7 +480,7 @@ public class PostgreSqlProvider extends RootEnvironment
       if (s != null) {
         try {
           s.close();
-        } catch (Exception a) {
+        } catch (SQLException a) {
           logError(a.getMessage(), a);
           a.printStackTrace();
           throw new RuntimeException(a);
@@ -489,7 +490,7 @@ public class PostgreSqlProvider extends RootEnvironment
       if (rs != null) {
         try {
           rs.close();
-        } catch (Exception a) {
+        } catch (SQLException a) {
           logError(a.getMessage(), a);				
           throw new RuntimeException(a);
         } 
@@ -498,7 +499,7 @@ public class PostgreSqlProvider extends RootEnvironment
       if (con != null) {
         try {
           con.close();
-        } catch (Exception a) {
+        } catch (SQLException a) {
           logError(a.getMessage(), a);				
           throw new RuntimeException(a);
         } 
@@ -513,7 +514,7 @@ public class PostgreSqlProvider extends RootEnvironment
     try {
       if (rs != null)
         rs.close();
-    } catch (Exception e) {
+    } catch (SQLException e) {
       logError(e.getMessage(), e);
       r.addErrorString(e.getMessage());
     }
@@ -524,7 +525,7 @@ public class PostgreSqlProvider extends RootEnvironment
     try {
       if (conn != null)
         conn.close();
-    } catch (Exception e) {
+    } catch (SQLException e) {
       logError(e.getMessage(), e);
       r.addErrorString(e.getMessage());
     }
@@ -535,7 +536,7 @@ public class PostgreSqlProvider extends RootEnvironment
     try {
       if (s != null)
         s.close();
-    } catch (Exception e) {
+    } catch (SQLException e) {
       logError(e.getMessage(), e);
       r.addErrorString(e.getMessage());
     }
@@ -546,7 +547,7 @@ public class PostgreSqlProvider extends RootEnvironment
     try {
       if (s != null)
         s.close();
-    } catch (Exception e) {
+    } catch (SQLException e) {
       logError(e.getMessage(), e);
       r.addErrorString(e.getMessage());
     }	

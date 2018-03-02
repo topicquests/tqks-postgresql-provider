@@ -38,6 +38,9 @@ tq_contents.merge_tuple_locators (
   PRIMARY KEY (proxyid, mtlocator)
 );
 
+GRANT ALL PRIVILEGES ON tq_contents.merge_tuple_locators TO tq_proxy;
+GRANT SELECT ON tq_contents.merge_tuple_locators TO tq_proxy_ro;
+
 --
 -- Create audit record for merge_tuple_locator changes.
 --
@@ -54,6 +57,9 @@ tq_contents.labels (
   label        text NOT NULL check (length(label) < 1024),
   language     text NOT NULL check (length(language) = 2)
 );
+
+GRANT ALL PRIVILEGES ON tq_contents.labels TO tq_proxy;
+GRANT SELECT ON tq_contents.labels TO tq_proxy_ro;
 
 --
 -- Create audit record for labels changes.
@@ -73,6 +79,9 @@ tq_contents.details (
   language     text NOT NULL check (length(language) = 2)
 );
 
+GRANT ALL PRIVILEGES ON tq_contents.details TO tq_proxy;
+GRANT SELECT ON tq_contents.details TO tq_proxy_ro;
+
 --
 -- Create audit record for details changes.
 --
@@ -88,6 +97,9 @@ tq_contents.superclasses (
   proxyid      locator NOT NULL references tq_contents.proxy(proxyid),
   superclass   text  -- superclass locator
 );
+
+GRANT ALL PRIVILEGES ON tq_contents.superclasses TO tq_proxy;
+GRANT SELECT ON tq_contents.superclasses TO tq_proxy_ro;
 
 --
 -- Create audit record for superclasses changes.
@@ -106,6 +118,9 @@ tq_contents.psi (
 );
 CREATE INDEX IF NOT EXISTS psi_idx
   ON tq_contents.psi (proxyid, psi);
+
+GRANT ALL PRIVILEGES ON tq_contents.psi TO tq_proxy;
+GRANT SELECT ON tq_contents.psi TO tq_proxy_ro;
 
 --
 -- Create audit record for psi changes.
@@ -126,6 +141,9 @@ tq_contents.properties (
 CREATE INDEX IF NOT EXISTS properties_idx
   ON tq_contents.properties (proxyid, property_key);
 
+GRANT ALL PRIVILEGES ON tq_contents.properties TO tq_proxy;
+GRANT SELECT ON tq_contents.properties TO tq_proxy_ro;
+
 --
 -- Create audit record for properties changes.
 --
@@ -144,6 +162,9 @@ tq_contents.transitive_closure (
 CREATE INDEX IF NOT EXISTS transitive_closure_idx
   ON tq_contents.transitive_closure (proxyid, property_type);
 
+GRANT ALL PRIVILEGES ON tq_contents.transitive_closure TO tq_proxy;
+GRANT SELECT ON tq_contents.transitive_closure TO tq_proxy_ro;
+
 --
 -- Create audit record for transitive closure changes.
 --
@@ -161,6 +182,9 @@ tq_contents.acls (
 );
 CREATE INDEX IF NOT EXISTS acls_idx
   ON tq_contents.acls (proxyid, acl);
+
+GRANT ALL PRIVILEGES ON tq_contents.acls TO tq_proxy;
+GRANT SELECT ON tq_contents.acls TO tq_proxy_ro;
 
 --
 -- Create audit record for ACL changes.
@@ -184,6 +208,9 @@ tq_contents.subjects (
 CREATE INDEX IF NOT EXISTS subjects_idx
   ON tq_contents.subjects (proxyid, creator);
 
+GRANT ALL PRIVILEGES ON tq_contents.subjects TO tq_proxy;
+GRANT SELECT ON tq_contents.subjects TO tq_proxy_ro;
+
 --
 -- Create audit record for subjects changes.
 --
@@ -205,6 +232,9 @@ tq_contents.bodies (
 );
 CREATE INDEX IF NOT EXISTS bodies_idx
   ON tq_contents.bodies (proxyid, creator);
+
+GRANT ALL PRIVILEGES ON tq_contents.bodies TO tq_proxy;
+GRANT SELECT ON tq_contents.bodies TO tq_proxy_ro;
 
 --
 -- Create audit record for bodies changes.
@@ -229,6 +259,9 @@ tq_contents.relations (
 );
 CREATE INDEX IF NOT EXISTS relations_idx
   ON tq_contents.relations (proxyid);
+
+GRANT ALL PRIVILEGES ON tq_contents.relations TO tq_proxy;
+GRANT SELECT ON tq_contents.relations TO tq_proxy_ro;
 
 --
 -- Create audit record for relations changes.
