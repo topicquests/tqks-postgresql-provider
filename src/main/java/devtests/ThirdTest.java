@@ -4,6 +4,7 @@
 package devtests;
 
 import java.sql.ResultSet;
+import java.sql.SQLException;
 
 import org.topicquests.pg.PostgreSqlProvider;
 import org.topicquests.support.api.IResult;
@@ -60,7 +61,11 @@ BBB  | org.postgresql.jdbc.PgResultSet@224aed64
 		
  */
 		
-		provider.shutDown();
+                try {
+                  provider.shutDown();
+                } catch (SQLException e) {
+                  System.out.println(e.getMessage());
+                }
 		System.exit(0);
 	}
 

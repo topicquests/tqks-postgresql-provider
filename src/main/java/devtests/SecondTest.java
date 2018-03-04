@@ -4,6 +4,7 @@
 package devtests;
 
 import java.sql.ResultSet;
+import java.sql.SQLException;
 
 import org.topicquests.pg.PostgreSqlProvider;
 import org.topicquests.support.api.IResult;
@@ -50,8 +51,11 @@ public class SecondTest {
 			}
 		}
 		
-		
-		provider.shutDown();
+                try {
+                  provider.shutDown();
+                } catch (SQLException e) {
+                  System.out.println(e.getMessage());
+                }
 		System.exit(0);
 
 	}

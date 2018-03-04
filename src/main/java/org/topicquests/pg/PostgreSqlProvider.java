@@ -1,5 +1,17 @@
-/**
- * 
+/*
+ * Copyright 2018, TopicQuests
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *    http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions
+ * and limitations under the License.
  */
 package org.topicquests.pg;
 
@@ -16,12 +28,9 @@ import org.topicquests.support.ResultPojo;
 import org.topicquests.support.RootEnvironment;
 import org.topicquests.support.api.IResult;
 
-import org.postgresql.ds.PGPoolingDataSource;
+// import org.postgresql.ds.PGPoolingDataSource;
+import org.apache.commons.dbcp2.*;
 
-/**
- * @author jackpark
- *
- */
 public class PostgreSqlProvider extends RootEnvironment 
     implements IPostgreSqlProvider {
   private final String urx;
@@ -33,7 +42,8 @@ public class PostgreSqlProvider extends RootEnvironment
    */
   // private ThreadLocal<Connection> localMapConnection = new ThreadLocal<Connection>();
   private Connection conn = null;
-  private PGPoolingDataSource source = null;
+  // private PGPoolingDataSource source = null;
+  private BasicDataSource connectionPool = null;
 
   public PostgreSqlProvider(String dbName, String dbSchema) {
     super("postgress-props.xml", "logger.properties");
@@ -53,26 +63,25 @@ public class PostgreSqlProvider extends RootEnvironment
     if (dbPwd != null && !dbPwd.equals(""))
       props.setProperty("password",dbPwd);
 
-    System.out.println("--- Setting up connection pool ---");
-    source = new PGPoolingDataSource();
-    source.setDataSourceName(dbSchema + " - TQ Data Source");
-    source.setServerName(dbUrl);
-    source.setDatabaseName(dbName);
-    source.setUser(dbUser);
-    source.setPassword(dbPwd);
-    source.setMaxConnections(10);
+    connectionPool = new BasicDataSource();
+    connectionPool.setUsername(dbUser);
+    connectionPool.setPassword(dbPwd);
+    connectionPool.setDriverClassName("org.postgresql.Driver");
+    connectionPool.setUrl(urx);
+    connectionPool.setInitialSize(1);
+    connectionPool.setMaxTotal(10);
   }
 
   public String getUser() {
-    return source.getUser();
+    return connectionPool.getUsername();
   }
 
   public void setUser(String user) {
-    source.setUser(user);
+    connectionPool.setUsername(user);
   }
 
   public void setPassword(String password) {
-    source.setPassword(password);
+    connectionPool.setPassword(password);
   }
 
   /////////////////
@@ -80,9 +89,7 @@ public class PostgreSqlProvider extends RootEnvironment
   ////////////////
 
   public Connection getConnection() throws SQLException {
-    // System.out.println("GETCON");
-    // return DriverManager.getConnection(urx, props);
-    conn = source.getConnection();
+    conn = connectionPool.getConnection();
     return conn;
   }
 
@@ -111,10 +118,30 @@ public class PostgreSqlProvider extends RootEnvironment
     }
   }
 
+  public void beginTransaction(Connection con) {
+    try {
+      if (con != null) {
+        con.setAutoCommit(false);
+      }
+    } catch (SQLException e) {
+      logError(e.getMessage(), e);
+    }
+  }
+
   public void endTransaction() {
     try {
       if (conn != null) {
         conn.commit();
+      }
+    } catch (SQLException e) {
+      logError(e.getMessage(), e);
+    }
+  }
+
+  public void endTransaction(Connection con) {
+    try {
+      if (con != null) {
+        con.commit();
       }
     } catch (SQLException e) {
       logError(e.getMessage(), e);
@@ -135,8 +162,8 @@ public class PostgreSqlProvider extends RootEnvironment
    * Must be called
    */
   @Override
-  public void shutDown() {
-    source.close();
+  public void shutDown() throws SQLException {
+    connectionPool.close();
   }
 
   /////////////////////
@@ -317,17 +344,6 @@ public class PostgreSqlProvider extends RootEnvironment
     } catch (SQLException e) {
       logError(e.getMessage(), e);
       result.addErrorString(e.getMessage());
-    } finally {
-      if (conn != null) {
-        try {
-          conn.close();
-        } catch (SQLException e) {
-          logError(e.getMessage(), e);
-          result.addErrorString(e.getMessage());
-        } finally {
-          conn = null;
-        }
-      }
     }
     return result;
   }

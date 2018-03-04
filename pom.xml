@@ -260,33 +260,38 @@
         <artifactId>postgresql</artifactId>
         <version>42.2.1</version>
       </dependency>
-	    <dependency>
-            <groupId>net.minidev</groupId>
-            <artifactId>json-smart</artifactId>
-            <version>2.2.1</version>
-        </dependency>
-	    <dependency>
-            <groupId>net.minidev</groupId>
-            <artifactId>accessors-smart</artifactId>
-            <version>1.1</version>
-        </dependency>
-        <dependency>
-            <groupId>org.topicquests</groupId>
-            <artifactId>tq-support</artifactId>
-            <version>1.7.3-SNAPSHOT</version>
-        </dependency>
-        <dependency>
-	  <groupId>org.junit.jupiter</groupId>
-	  <artifactId>junit-jupiter-api</artifactId>
-	  <version>5.0.3</version>
-	  <scope>test</scope>
-	</dependency>
-	<dependency>
-	  <groupId>junit</groupId>
-	  <artifactId>junit</artifactId>
-	  <version>4.12</version>
-	  <scope>test</scope>
-        </dependency>
+      <dependency>
+        <groupId>org.apache.commons</groupId>
+        <artifactId>commons-dbcp2</artifactId>
+        <version>2.2.0</version>
+      </dependency>
+      <dependency>
+        <groupId>net.minidev</groupId>
+        <artifactId>json-smart</artifactId>
+        <version>2.2.1</version>
+      </dependency>
+      <dependency>
+        <groupId>net.minidev</groupId>
+        <artifactId>accessors-smart</artifactId>
+        <version>1.1</version>
+      </dependency>
+      <dependency>
+        <groupId>org.topicquests</groupId>
+        <artifactId>tq-support</artifactId>
+        <version>1.7.3-SNAPSHOT</version>
+      </dependency>
+      <dependency>
+	<groupId>org.junit.jupiter</groupId>
+	<artifactId>junit-jupiter-api</artifactId>
+	<version>5.0.3</version>
+	<scope>test</scope>
+      </dependency>
+      <dependency>
+	<groupId>junit</groupId>
+	<artifactId>junit</artifactId>
+	<version>4.12</version>
+	<scope>test</scope>
+      </dependency>
     </dependencies>
     <inceptionYear>2015</inceptionYear>
     <licenses>

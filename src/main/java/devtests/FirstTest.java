@@ -3,6 +3,8 @@
  */
 package devtests;
 
+import java.sql.SQLException;
+
 import org.topicquests.pg.PostgreSqlProvider;
 import org.topicquests.support.api.IResult;
 
@@ -42,7 +44,11 @@ public class FirstTest {
                 provider = new PostgreSqlProvider(DB_NAME, "FirstTestSchema");
 		IResult r = provider.validateDatabase(tableSchema);
 		System.out.println("AAA "+r.getErrorString());
-		provider.shutDown();
+                try {
+                  provider.shutDown();
+                } catch (SQLException e) {
+                  System.out.println(e.getMessage());
+                }
 		System.exit(0);
 	}
 

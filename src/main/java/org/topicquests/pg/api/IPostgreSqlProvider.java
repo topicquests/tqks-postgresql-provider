@@ -4,6 +4,7 @@
 package org.topicquests.pg.api;
 
 import java.sql.Connection;
+import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.List;
 import java.sql.PreparedStatement;
@@ -97,5 +98,5 @@ public interface IPostgreSqlProvider {
 	
 	IResult executeSelect(Connection conn, String sql, String... vals);
 	
-	void shutDown();
+	void shutDown() throws SQLException;
 }

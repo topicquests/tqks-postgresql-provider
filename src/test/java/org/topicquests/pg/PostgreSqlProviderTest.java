@@ -34,14 +34,18 @@ public class PostgreSqlProviderTest {
 
     setupRoot();
 
-    // try {
-    //   conn = provider.getConnection();
-    // } catch (Exception e) {
-    //   fail(e.getMessage());
-    // }
+    try {
+      conn = provider.getConnection();
+    } catch (Exception e) {
+      fail(e.getMessage());
+    }
     executeStatements(testCreation);
     closeConnection();
-    provider.shutDown();
+    try {
+      provider.shutDown();
+    } catch (SQLException e) {
+      System.out.println(e.getMessage());
+    }
 
     setupTestUser();
     setupDBTables();
@@ -94,7 +98,11 @@ public class PostgreSqlProviderTest {
     InsertAndSelect3();
     DeleteUser1();
     closeConnection();
-    provider.shutDown();
+    try {
+      provider.shutDown();
+    } catch (SQLException e) {
+      System.out.println(e.getMessage());
+    }
   }
 
   void InsertAndSelect() {
@@ -106,6 +114,13 @@ public class PostgreSqlProviderTest {
 
     assertEquals("testuser", provider.getUser());
 
+    Connection con = null;
+    try {
+      con = provider.getConnection();
+    } catch (SQLException e) {
+      fail(e.getMessage());
+    }
+
     // Generate Some SQL
     JSONObject jo = new JSONObject();
     jo.put("Hello", "World");
@@ -113,13 +128,16 @@ public class PostgreSqlProviderTest {
     // Insert
     String sql = "INSERT INTO " + VERTEX_TABLE +
         " values('" + V_ID + "', '" + jo.toJSONString() + "')";
-    provider.beginTransaction();
-    IResult r = provider.executeSQL(sql);
-    provider.endTransaction();
+    provider.beginTransaction(con);
+    IResult r = provider.executeSQL(con, sql);
+    provider.endTransaction(con);
     
     // Select
     sql = "SELECT json FROM " + VERTEX_TABLE + " where id='" + V_ID + "'";
-    r = provider.executeSelect(sql);
+    r = provider.executeSelect(con, sql);
+    if (r.hasError()) {
+      fail("Error in SELECT: " + r.getErrorString());
+    }
     
     Object o = r.getResultObject();
     if (o != null) {
@@ -130,14 +148,19 @@ public class PostgreSqlProviderTest {
           assertEquals("{\"Hello\":\"World\"}", rs.getString("json"));
         }
       } catch (Exception e) {
+        provider.closeConnection(con, r);
+        e.printStackTrace();
         fail(e.getMessage());
       }
 
       provider.closeResultSet(rs, r);
       if (r.hasError()) {
+        provider.closeConnection(con, r);
         fail(r.getErrorString());
       }
     }
+
+    provider.closeConnection(con, r);
   }
 
   void InsertAndSelect2() {
@@ -148,6 +171,13 @@ public class PostgreSqlProviderTest {
         V_ID            = Long.toString(System.currentTimeMillis());
 
     assertEquals("testuser", provider.getUser());
+
+    Connection con = null;
+    try {
+      con = provider.getConnection();
+    } catch (SQLException e) {
+      fail(e.getMessage());
+    }
 
     // Generate Some SQL
     JSONObject jo = new JSONObject();
@@ -161,9 +191,9 @@ public class PostgreSqlProviderTest {
     String sql = "INSERT INTO " + VERTEX_TABLE + " values(?, to_json(?::json))";
     IResult r = null;
     try {
-      provider.beginTransaction();
-      r = provider.executeSQL(sql, vals);
-      provider.endTransaction();
+      provider.beginTransaction(con);
+      r = provider.executeSQL(con, sql, vals);
+      provider.endTransaction(con);
     } catch (Exception e) {
       fail(e.getMessage());
     }
@@ -171,7 +201,7 @@ public class PostgreSqlProviderTest {
     // Select
     sql = "SELECT json FROM " + VERTEX_TABLE + " where id=?";
     try {
-      r = provider.executeSelect(sql, V_ID);
+      r = provider.executeSelect(con, sql, V_ID);
     } catch (Exception e) {
       fail(e.getMessage());
     }
@@ -185,14 +215,18 @@ public class PostgreSqlProviderTest {
           assertEquals("{\"Hello\":\"World\"}", rs.getString("json"));
         }
       } catch (Exception e) {
+        provider.closeConnection(con, r);
         fail(e.getMessage());
       }
 
       provider.closeResultSet(rs, r);
       if (r.hasError()) {
+        provider.closeConnection(con, r);
         fail(r.getErrorString());
       }
     }
+
+    provider.closeConnection(con, r);
   }
   
   void InsertAndSelect3() {
@@ -271,11 +305,18 @@ public class PostgreSqlProviderTest {
     final String VERTEX_TABLE = "vertex";
     String V_ID = "";
 
+    Connection con = null;
+    try {
+      con = provider.getConnection();
+    } catch (SQLException e) {
+      fail(e.getMessage());
+    }
+
     // Select row with the max id.
     String sql = "SELECT max(id) FROM " + VERTEX_TABLE;
-    provider.beginTransaction();
-    IResult r = provider.executeSelect(sql);
-    provider.endTransaction();
+    provider.beginTransaction(con);
+    IResult r = provider.executeSelect(con, sql);
+    provider.endTransaction(con);
     
     Object o = r.getResultObject();
     if (o != null) {
@@ -306,9 +347,9 @@ public class PostgreSqlProviderTest {
     sql = "UPDATE " + VERTEX_TABLE + " SET json = to_json(?::json) WHERE id = ?";
     r = null;
     try {
-      provider.beginTransaction();
-      r = provider.executeUpdate(sql, vals);
-      provider.endTransaction();
+      provider.beginTransaction(con);
+      r = provider.executeUpdate(con, sql, vals);
+      provider.endTransaction(con);
     } catch (Exception e) {
       fail(e.getMessage());
     }
@@ -317,7 +358,7 @@ public class PostgreSqlProviderTest {
     sql = "SELECT json FROM " + VERTEX_TABLE + " where id = ?";
     r = null;
     try {
-      r = provider.executeSelect(sql, V_ID);
+      r = provider.executeSelect(con, sql, V_ID);
     } catch (Exception e) {
       fail(e.getMessage());
     }
@@ -331,14 +372,18 @@ public class PostgreSqlProviderTest {
           assertEquals("{\"Goodbye\":\"World\"}", rs.getString("json"));
         }
       } catch (Exception e) {
+        provider.closeConnection(con, r);
         fail(e.getMessage());
       }
       
       provider.closeResultSet(rs, r);
       if (r.hasError()) {
+        provider.closeConnection(con, r);
         fail(r.getErrorString());
       }
     }
+
+    provider.closeConnection(con, r);
   }
   
   void updateRow2() {
@@ -346,9 +391,16 @@ public class PostgreSqlProviderTest {
     final String VERTEX_TABLE = "vertex";
     String V_ID = "";
        
+    Connection con = null;
+    try {
+      con = provider.getConnection();
+    } catch (SQLException e) {
+      fail(e.getMessage());
+    }
+
     // Select row with the max id.
     String sql = "SELECT max(id) FROM " + VERTEX_TABLE;
-    IResult r = provider.executeSelect(sql);
+    IResult r = provider.executeSelect(con, sql);
     
     Object o = r.getResultObject();
     if (o != null) {
@@ -359,11 +411,13 @@ public class PostgreSqlProviderTest {
           V_ID = rs.getString(1);
         }
       } catch (Exception e) {
+        provider.closeConnection(con, r);
         fail(e.getMessage());
       }
 
       provider.closeResultSet(rs, r);
       if (r.hasError()) {
+        provider.closeConnection(con, r);
         fail(r.getErrorString());
       }
     }
@@ -380,9 +434,9 @@ public class PostgreSqlProviderTest {
         "' WHERE id = '" + V_ID + "'";
     r = null;
     try {
-      provider.beginTransaction();
-      r = provider.executeUpdate(sql);
-      provider.endTransaction();
+      provider.beginTransaction(con);
+      r = provider.executeUpdate(con, sql);
+      provider.endTransaction(con);
     } catch (Exception e) {
       fail(e.getMessage());
     }
@@ -391,8 +445,9 @@ public class PostgreSqlProviderTest {
     sql = "SELECT json FROM " + VERTEX_TABLE + " where id = ?";
     r = null;
     try {
-      r = provider.executeSelect(sql, V_ID);
+      r = provider.executeSelect(con, sql, V_ID);
     } catch (Exception e) {
+      provider.closeConnection(con, r);
       fail(e.getMessage());
     }
     o = r.getResultObject();
@@ -405,14 +460,18 @@ public class PostgreSqlProviderTest {
           assertEquals("{\"Goodbye\":\"World\"}", rs.getString("json"));
         }
       } catch (Exception e) {
+        provider.closeConnection(con, r);
         fail(e.getMessage());
       }
 
       provider.closeResultSet(rs, r);
       if (r.hasError()) {
+        provider.closeConnection(con, r);
         fail(r.getErrorString());
       }
     }
+
+    provider.closeConnection(con, r);
   }
   
   void getRowCount() {
@@ -447,7 +506,11 @@ public class PostgreSqlProviderTest {
     System.out.println("in tearDownAll");
     // Drop the testuser provider
     closeConnection();
-    provider.shutDown();
+    try {
+      provider.shutDown();
+    } catch (SQLException e) {
+      System.out.println(e.getMessage());
+    }
 
     // Create a new provider to drop the test databases.
     setupTemplate();
@@ -459,7 +522,11 @@ public class PostgreSqlProviderTest {
 
     executeStatements(testDropDBs);
     closeConnection();
-    provider.shutDown();
+    try {
+      provider.shutDown();
+    } catch (SQLException e) {
+      System.out.println(e.getMessage());
+    }
 
     String[] testDropUser = {
       "DROP ROLE testuser"
@@ -472,7 +539,11 @@ public class PostgreSqlProviderTest {
     }
     executeStatements(testDropUser);
     closeConnection();
-    provider.shutDown();
+    try {
+      provider.shutDown();
+    } catch (SQLException e) {
+      System.out.println(e.getMessage());
+    }
   }
 
   //
