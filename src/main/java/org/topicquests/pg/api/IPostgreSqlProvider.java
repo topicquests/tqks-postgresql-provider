@@ -48,6 +48,14 @@ public interface IPostgreSqlProvider {
 	IResult executeSQL(String sql);
 	
 	IResult executeSQL(Connection conn, String sql);
+  
+	/**
+	 * Execute an array of SQL statements at a time
+	 * @param stmts
+	 * @return
+	 */
+	IResult executeMultiSQL(String[] stmts);
+	
 	/**
 	 * Execute a list of SQL statements at a time
 	 * @param sql
@@ -67,12 +75,21 @@ public interface IPostgreSqlProvider {
 	IResult executeSelect(String sql);
 	
 	IResult executeSelect(Connection conn, String sql);
+  
 	/**
 	 * Will return a {@link Long} value
 	 * @param sql
 	 * @return
 	 */
 	IResult executeCount(String sql);
+	
+	/**
+	 * Will return a {@link Long} value
+	 * @param conn
+	 * @param sql
+	 * @return
+	 */
+        IResult executeCount(Connection conn, String sql);
 	
 	/**
 	 * For use with a (@link PreparedStatement}

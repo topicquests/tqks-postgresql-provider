@@ -97,54 +97,59 @@ public class PostgreSqlProvider extends RootEnvironment
     return getConnection();
   }
 
-  private void closeLocalConnection() {
+  private void closeLocalConnection() throws SQLException {
     try {
       if (conn != null) {
         conn.close();
       }
     } catch (SQLException e) {
+      throw e;
     } finally {
       conn = null;
     }
   }
 
-  public void beginTransaction() {
+  public void beginTransaction() throws SQLException {
     try {
       if (conn != null) {
         conn.setAutoCommit(false);
       }
     } catch (SQLException e) {
       logError(e.getMessage(), e);
+      throw e;
     }
   }
 
-  public void beginTransaction(Connection con) {
+  public void beginTransaction(Connection con) throws SQLException {
     try {
       if (con != null) {
         con.setAutoCommit(false);
       }
     } catch (SQLException e) {
       logError(e.getMessage(), e);
+      throw e;
     }
   }
 
-  public void endTransaction() {
+  public void endTransaction() throws SQLException {
     try {
       if (conn != null) {
         conn.commit();
       }
     } catch (SQLException e) {
       logError(e.getMessage(), e);
+      throw e;
     }
   }
 
-  public void endTransaction(Connection con) {
+  public void endTransaction(Connection con) throws SQLException {
     try {
       if (con != null) {
         con.commit();
       }
     } catch (SQLException e) {
       logError(e.getMessage(), e);
+      throw e;
     }
   }
 
@@ -163,7 +168,14 @@ public class PostgreSqlProvider extends RootEnvironment
    */
   @Override
   public void shutDown() throws SQLException {
-    connectionPool.close();
+    try {
+      connectionPool.close();
+    } catch (SQLException e) {
+      logError(e.getMessage(), e);
+      throw e;
+    } finally {
+      connectionPool = null;
+    }
   }
 
   /////////////////////
@@ -183,7 +195,13 @@ public class PostgreSqlProvider extends RootEnvironment
     closeConnection(conn, rset);
     return rset;
   }
-	
+
+  @Override
+  public IResult executeMultiSQL(String[] stmts) {
+    List<String> sqlList = Arrays.asList(stmts);
+    return executeMultiSQL(sqlList);
+  }
+  
   @Override
   public IResult executeMultiSQL(List<String> sql) {
     Connection conn = null;
@@ -248,7 +266,8 @@ public class PostgreSqlProvider extends RootEnvironment
     return rset;
   }
 
-  private IResult executeCount(Connection conn, String sql) {
+  @Override
+  public IResult executeCount(Connection conn, String sql) {
     IResult result = new ResultPojo();
     Statement s = null;
     ResultSet rs = null;
