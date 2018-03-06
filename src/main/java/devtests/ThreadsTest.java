@@ -1,3 +1,14 @@
+//
+// To run this test, set up the geodb database in Postgres:
+//
+// $ psql -U postgres
+// postgres=# create role geo with login password 'geopwd';
+// CREATE ROLE
+// postgres=# create database geodb encoding 'UTF-8' owner 'geo';
+// CREATE DATABASE
+// postgres=# \i world.sql
+//
+
 package devtests;
 
 import java.sql.*;
