@@ -15,12 +15,7 @@
  */
 package org.topicquests.pg;
 
-import java.sql.Connection;
-import java.sql.DriverManager;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.sql.Statement;
+import java.sql.*;
 import java.util.*;
 
 import org.topicquests.pg.api.IPostgresConnection;
@@ -37,16 +32,84 @@ public class PostgresConnection implements IPostgresConnection {
     conn = con;
   }
 
-  public void beginTransaction() throws SQLException {
-    if (conn != null)
-      conn.setAutoCommit(false);
+  @Override
+  public IResult beginTransaction() {
+    IResult result = new ResultPojo();
+    return beginTransaction(result);
+  }
+  
+  public IResult beginTransaction(IResult result) {
+    try {
+      if (conn != null)
+        conn.setAutoCommit(false);
+    } catch(SQLException e) {
+      result.addErrorString(e.getMessage());
+    }
+
+    return result;
   }
 
-  public void endTransaction() throws SQLException {
-    if (conn != null) {
-      conn.commit();
-      conn.setAutoCommit(true);
+  @Override
+  public IResult endTransaction() {
+    IResult result = new ResultPojo();
+    return endTransaction(result);
+  }
+
+  @Override
+  public IResult endTransaction(IResult result) {
+    if (result.hasError())
+      return result;
+    
+    try {
+      if (conn != null) {
+        conn.commit();
+        conn.setAutoCommit(true);
+      }
+    } catch (SQLException e) {
+      result.addErrorString(e.getMessage());
     }
+
+    return result;
+  }
+
+  @Override
+  public IResult setSavepoint() {
+    IResult result = new ResultPojo();
+    return setSavepoint(result);
+  }
+
+  @Override
+  public IResult setSavepoint(IResult result) {
+    try {
+      if (conn != null) {
+        Savepoint svpt = conn.setSavepoint();
+        result.setResultObject(svpt);
+      }
+    } catch(SQLException e) {
+      result.addErrorString(e.getMessage());
+    }
+
+    return result;
+  }
+
+  @Override
+  public IResult setSavepoint(String name) {
+    IResult result = new ResultPojo();
+    return setSavepoint(name, result);
+  }
+
+  @Override
+  public IResult setSavepoint(String name, IResult result) {
+    try {
+      if (conn != null) {
+        Savepoint svpt = conn.setSavepoint(name);
+        result.setResultObject(svpt);
+      }
+    } catch(SQLException e) {
+      result.addErrorString(e.getMessage());
+    }
+
+    return result;
   }
 
   private IResult errorResult(SQLException e) {
@@ -58,7 +121,15 @@ public class PostgresConnection implements IPostgresConnection {
   @Override
   public IResult executeSQL(String sql) {
     IResult result = new ResultPojo();
+    return executeSQL(sql, result);
+  }
+
+  @Override
+  public IResult executeSQL(String sql, IResult result) {
     Statement s = null;
+
+    if (result.hasError())
+      return result;
 
     try {
       s = conn.createStatement();
@@ -85,15 +156,22 @@ public class PostgresConnection implements IPostgresConnection {
   }
   
   @Override
+  public IResult executeMultiSQL(String[] stmts, IResult result) {
+    List<String> sqlList = Arrays.asList(stmts);
+    return executeMultiSQL(sqlList, result);
+  }
+  
+  @Override
   public IResult executeMultiSQL(List<String> sql) {
     IResult result = new ResultPojo();
-    IResult r = null;
-
+    return executeMultiSQL(sql, result);
+  }
+  
+  @Override
+  public IResult executeMultiSQL(List<String> sql, IResult result) {
     Iterator<String> itr = sql.iterator();
     while (itr.hasNext()) {
-      r = executeSQL(itr.next());
-      if (r.hasError())
-        result.addErrorString(r.getErrorString());
+      result = executeSQL(itr.next(), result);
     }
 
     return result;
@@ -102,6 +180,11 @@ public class PostgresConnection implements IPostgresConnection {
   @Override
   public IResult executeCount(String sql) {
     IResult result = new ResultPojo();
+    return executeCount(sql, result);
+  }
+  
+  @Override
+  public IResult executeCount(String sql, IResult result) {
     Statement s = null;
     ResultSet rs = null;
 
@@ -130,6 +213,11 @@ public class PostgresConnection implements IPostgresConnection {
   @Override
   public IResult executeUpdate(String sql) {
     IResult result = new ResultPojo();
+    return executeUpdate(sql, result);
+  }
+  
+  @Override
+  public IResult executeUpdate(String sql, IResult result) {
     Statement s = null;
 
     try {
@@ -153,6 +241,11 @@ public class PostgresConnection implements IPostgresConnection {
   @Override
   public IResult executeSelect(String sql) {
     IResult result = new ResultPojo();
+    return executeSelect(sql, result);
+  }
+  
+  @Override
+  public IResult executeSelect(String sql, IResult result) {
     Statement s = null;
 
     try {
@@ -166,15 +259,20 @@ public class PostgresConnection implements IPostgresConnection {
   }
   
   @Override
-  public IResult executeSQL(String sql, String... vals) {
+  public IResult executeSQL(String sql, Object... vals) {
     IResult result = new ResultPojo();
+    return executeSQL(sql, result, vals);
+  }
+  
+  @Override
+  public IResult executeSQL(String sql, IResult result, Object... vals) {
     PreparedStatement s = null;
 
     try {
       s = conn.prepareStatement(sql);
       int len = vals.length;
-      for (int i=0;i<len;i++) {
-        s.setString(i+1, vals[i]);
+      for (int i = 0; i < len; i++) {
+        s.setObject(i+1, vals[i]);
       }
       s.execute();
     } catch (SQLException e) {
@@ -191,6 +289,11 @@ public class PostgresConnection implements IPostgresConnection {
   @Override
   public IResult executeUpdate(String sql, String... vals) {
     IResult result = new ResultPojo();
+    return executeUpdate(sql, result, vals);
+  }
+  
+  @Override
+  public IResult executeUpdate(String sql, IResult result, String... vals) {
     PreparedStatement s = null;
 
     try {
@@ -214,6 +317,11 @@ public class PostgresConnection implements IPostgresConnection {
   @Override
   public IResult executeSelect(String sql, String... vals) {
     IResult result = new ResultPojo();
+    return executeSelect(sql, result, vals);
+  }
+  
+  @Override
+  public IResult executeSelect(String sql, IResult result, String... vals) {
     PreparedStatement s = null;
 
     try {

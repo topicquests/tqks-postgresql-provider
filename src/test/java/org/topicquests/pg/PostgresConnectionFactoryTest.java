@@ -120,12 +120,11 @@ public class PostgresConnectionFactoryTest {
         " values('" + V_ID + "', '" + jo.toJSONString() + "')";
 
     IResult r = null;
-    try {
-      conn.beginTransaction();
-      r = conn.executeSQL(sql);
-      conn.endTransaction();
-    } catch (SQLException e) {
-      fail(e.getMessage());
+    r = conn.beginTransaction();
+    r = conn.executeSQL(sql, r);
+    r = conn.endTransaction(r);
+    if (r.hasError()) {
+      fail(r.getErrorString());
     }
     
     // Select
@@ -291,12 +290,11 @@ public class PostgresConnectionFactoryTest {
     String sql = "SELECT max(id) FROM " + VERTEX_TABLE;
     IResult r = null;
     
-    try {
-      conn.beginTransaction();
-      r = conn.executeSelect(sql);
-      conn.endTransaction();
-    } catch (SQLException e) {
-      fail(e.getMessage());
+    r = conn.beginTransaction();
+    r = conn.executeSQL(sql, r);
+    r = conn.endTransaction(r);
+    if (r.hasError()) {
+      fail(r.getErrorString());
     }
     
     Object o = r.getResultObject();
@@ -327,12 +325,11 @@ public class PostgresConnectionFactoryTest {
     
     sql = "UPDATE " + VERTEX_TABLE + " SET json = to_json(?::json) WHERE id = ?";
     r = null;
-    try {
-      conn.beginTransaction();
-      r = conn.executeUpdate(sql, vals);
-      conn.endTransaction();
-    } catch (Exception e) {
-      fail(e.getMessage());
+    r = conn.beginTransaction();
+    conn.executeSQL(sql, r, vals);
+    conn.endTransaction(r);
+    if (r.hasError()) {
+      fail(r.getErrorString());
     }
 
     // Select updated row
@@ -394,19 +391,13 @@ public class PostgresConnectionFactoryTest {
     JSONObject jo = new JSONObject();
     jo.put("Goodbye", "World");
 
-    String [] vals = new String [2];
-    vals[0] = jo.toJSONString();
-    vals[1] = V_ID;
-    
     sql = "UPDATE " + VERTEX_TABLE + " SET json = '" + jo.toJSONString() +
         "' WHERE id = '" + V_ID + "'";
-    r = null;
-    try {
-      conn.beginTransaction();
-      r = conn.executeUpdate(sql);
-      conn.endTransaction();
-    } catch (Exception e) {
-      fail(e.getMessage());
+    r = conn.beginTransaction();
+    conn.executeSQL(sql, r);
+    conn.endTransaction(r);
+    if (r.hasError()) {
+      fail(r.getErrorString());
     }
 
     // Select updated row

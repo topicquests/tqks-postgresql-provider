@@ -28,15 +28,32 @@ public interface IPostgresConnection {
 
   /**
    * Begin a transaction for the connection.
-   * @throws SQLException if the transaction is not properly started.
+   * @return IResult
    */
-  public void beginTransaction() throws SQLException;
+  public IResult beginTransaction();
+  public IResult beginTransaction(IResult result);
 
   /**
    * End a transaction for the connection.
-   * @throws SQLException if the transaction is not properly ended.
+   * @return IResult
    */
-  public void endTransaction() throws SQLException;
+  public IResult endTransaction();
+  public IResult endTransaction(IResult result);
+
+  /**
+   * Set a savepoint.
+   * @return IResult
+   */
+  public IResult setSavepoint();
+  public IResult setSavepoint(IResult result);
+
+  /**
+   * Set a savepoint.
+   * @param name The name of the savepoint.
+   * @return IResult
+   */
+  public IResult setSavepoint(String name);
+  public IResult setSavepoint(String name, IResult result);
 
   /**
    * Execute the SQL string in the database.
@@ -44,6 +61,7 @@ public interface IPostgresConnection {
    * @return An IResult object containing the ResultSet and any error messages.
    */
   public IResult executeSQL(String sql);
+  public IResult executeSQL(String sql, IResult result);
 
   /**
    * Execute the array of SQL strings in the database.
@@ -51,6 +69,7 @@ public interface IPostgresConnection {
    * @return An IResult object containing the ResultSets and any error messages.
    */
   public IResult executeMultiSQL(String[] stmts);
+  public IResult executeMultiSQL(String[] stmts, IResult result);
   
   /**
    * Execute the list of SQL strings in the database.
@@ -58,6 +77,7 @@ public interface IPostgresConnection {
    * @return An IResult object containing the ResultSets and any error messages.
    */
   public IResult executeMultiSQL(List<String> sql);
+  public IResult executeMultiSQL(List<String> sql, IResult result);
 	
   /**
    * Execute the list of SQL strings in the database and return the number of rows.
@@ -65,6 +85,7 @@ public interface IPostgresConnection {
    * @return An IResult object containing the row count and any error messages.
    */
   public IResult executeCount(String sql);
+  public IResult executeCount(String sql, IResult result);
 
   /**
    * Execute the UPDATE SQL string in the database.
@@ -72,6 +93,7 @@ public interface IPostgresConnection {
    * @return An IResult object containing the ResultSet and any error messages.
    */
   public IResult executeUpdate(String sql);
+  public IResult executeUpdate(String sql, IResult result);
 	
   /**
    * Execute the SELECT SQL string in the database.
@@ -79,6 +101,7 @@ public interface IPostgresConnection {
    * @return An IResult object containing the ResultSet and any error messages.
    */
   public IResult executeSelect(String sql);
+  public IResult executeSelect(String sql, IResult result);
   
   /**
    * Execute the prepared statement SQL string in the database.
@@ -86,7 +109,8 @@ public interface IPostgresConnection {
    * @param vals The values to be injected into the prepared statement.
    * @return An IResult object containing the ResultSet and any error messages.
    */
-  public IResult executeSQL(String sql, String... vals);
+  public IResult executeSQL(String sql, Object... vals);
+  public IResult executeSQL(String sql, IResult result, Object... vals);
 
   /**
    * Execute the prepared statement UPDATE SQL string in the database.
@@ -95,6 +119,7 @@ public interface IPostgresConnection {
    * @return An IResult object containing the ResultSet and any error messages.
    */
   public IResult executeUpdate(String sql, String... vals);
+  public IResult executeUpdate(String sql, IResult result, String... vals);
 
   /**
    * Execute the prepared statement SELECT SQL string in the database.
@@ -103,6 +128,7 @@ public interface IPostgresConnection {
    * @return An IResult object containing the ResultSet and any error messages.
    */
   public IResult executeSelect(String sql, String... vals);
+  public IResult executeSelect(String sql, IResult Result, String... vals);
 
   /**
    * Perform a validation of the database.

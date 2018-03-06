@@ -65,6 +65,7 @@ public class PostgresConnectionFactory extends RootEnvironment
       props.setProperty("password", password);
 
     connectionPool = new BasicDataSource();
+    connectionPool.setMaxOpenPreparedStatements(20);
     connectionPool.setUsername(user);
     connectionPool.setPassword(password);
     connectionPool.setDriverClassName("org.postgresql.Driver");

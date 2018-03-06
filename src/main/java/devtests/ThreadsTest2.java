@@ -22,7 +22,7 @@ import org.topicquests.support.ResultPojo;
 
 import net.minidev.json.JSONObject;
 
-public class ThreadsTest extends Thread {
+public class ThreadsTest2 extends Thread {
   // Default no of threads to 10
   private static int NUM_OF_THREADS = 10;
   private static IPostgresConnectionFactory provider;
@@ -32,8 +32,6 @@ public class ThreadsTest extends Thread {
   int m_myId;
 
   static  int c_nextId = 1;
-  static  IPostgresConnection s_conn = null;
-  static  boolean share_connection = false;
 
   synchronized static int getNextId() {
     return c_nextId++;
@@ -44,33 +42,22 @@ public class ThreadsTest extends Thread {
       provider = setupTestUser();
       
       // If NoOfThreads is specified, then read it
-      if ((args.length > 2)  || 
-          ((args.length > 1) && !(args[1].equals("share")))) {
+      if (args.length > 1) {
         System.out.println("Error: Invalid Syntax. ");
-        System.out.println("java ThreadsTest [NoOfThreads] [share]");
+        System.out.println("java ThreadsTest2 [NoOfThreads]");
         System.exit(0);
       }
 
-      if (args.length > 1) {
-        share_connection = true;
-        System.out.println
-            ("All threads will be sharing the same connection");
-      }
-  
       // get the no of threads if given
       if (args.length > 0)
         NUM_OF_THREADS = Integer.parseInt (args[0]);
-  
-      // get a shared connection
-      if (share_connection)
-        s_conn = provider.getConnection();
   
       // Create the threads
       Thread[] threadList = new Thread[NUM_OF_THREADS];
 
       // spawn threads
       for (int i = 0; i < NUM_OF_THREADS; i++) {
-        threadList[i] = new ThreadsTest();
+        threadList[i] = new ThreadsTest2();
         threadList[i].start();
       }
     
@@ -82,20 +69,39 @@ public class ThreadsTest extends Thread {
         threadList[i].join();
       }
 
-      if (share_connection) {
-        IResult r = new ResultPojo();
-        s_conn.closeConnection(r);
-        s_conn = null;
-      }
+      cleanUp();
 
       // shut down the database provider
       provider.shutDown();
     } catch (Exception e) {
       e.printStackTrace();
     }
-  }  
+  }
 
-  public ThreadsTest() {
+  private static void cleanUp() {
+    IPostgresConnection conn = null;
+    IResult   result  = null;
+    Statement stmt = null;
+
+    try {    
+      conn = provider.getConnection();
+      stmt = conn.createStatement();
+
+      // Begin the transaction for this thread.
+      result = conn.beginTransaction();
+
+      String sqlstmt = "delete from city where id > 9999";
+      conn.executeSQL(sqlstmt, result);
+
+      // End the transaction.
+      conn.endTransaction(result);
+    } catch (Exception e) {
+      System.out.println("Exception during cleanup: " + e);
+      e.printStackTrace();
+    }
+  }
+
+  public ThreadsTest2() {
     super();
     // Assign an Id to the thread
     m_myId = getNextId();
@@ -103,43 +109,60 @@ public class ThreadsTest extends Thread {
 
   public void run() {
     IPostgresConnection conn = null;
-    ResultSet  rs   = null;
-    Statement  stmt = null;
+    IResult   result  = null;
+    Statement stmt = null;
 
     try {    
-      // Get the connection
-      if (share_connection)
-        stmt = s_conn.createStatement();
-      else {
-        conn = provider.getConnection();
-        stmt = conn.createStatement();
-      }
+      conn = provider.getConnection();
+      stmt = conn.createStatement();
 
       while (!getGreenLight())
         yield();
-          
+
+      Object [] vals = new Object[5];
+      vals[0] = new Integer(m_myId + 10000);
+      vals[1] = new String("city");
+      vals[2] = new String("USA");
+      vals[3] = new String("district");
+      vals[4] = new Integer(0);
+
+      String idstr = Integer.toString(m_myId);
+
+      // Begin the transaction for this thread.
+      result = conn.beginTransaction();
+      checkError(result, "");
+      
       // Execute the Query
-      String sqlstmt = "select * from city where id < " + Integer.toString(m_myId * 3);
-      rs = stmt.executeQuery(sqlstmt);
-          
-      // Loop through the results
-      while (rs.next()) {
-        System.out.println("Thread " + m_myId + 
-                           " City Id : " + rs.getInt(1) + 
-                           " Name : " + rs.getString(2));
-        yield();  // Yield To other threads
-      }
-          
-      // Close all the resources
-      rs.close();
-      rs = null;
+      String sqlstmt = "insert into city values (?, ?, ?, ?, ?)";
+      conn.executeSQL(sqlstmt, result, vals);
+      checkError(result, sqlstmt);
+
+      sqlstmt = "update city set name = ? where id = ?";
+      vals = new Object[2];
+      vals[0] = new String("city" + idstr);
+      vals[1] = new Integer(m_myId + 10000);
+      
+      conn.executeSQL(sqlstmt, result, vals);
+      checkError(result, sqlstmt);
+
+      sqlstmt = "update city set population = ? where id = ?";
+      vals = new Object[2];
+      vals[0] = new Integer(m_myId + 10000);
+      vals[1] = new Integer(m_myId + 10000);
+
+      conn.executeSQL(sqlstmt, result, vals);
+      checkError(result, sqlstmt);
+
+      // End the transaction.
+      conn.endTransaction(result);
+      checkError(result, "");
   
       // Close the statement
       stmt.close();
       stmt = null;
   
       // Close the local connection
-      if ((!share_connection) && (conn != null)) {
+      if (conn != null) {
         IResult r = new ResultPojo();
         conn.closeConnection(r);
         conn = null;
@@ -149,6 +172,16 @@ public class ThreadsTest extends Thread {
       System.out.println("Thread " + m_myId + " got Exception: " + e);
       e.printStackTrace();
       return;
+    }
+  }
+
+  private void checkError(IResult result, String sqlstmt) {
+    if (result != null) {
+      if (result.hasError()) {
+        System.out.println("ERROR: " + result.getErrorString());
+        System.out.println("SQL: " + sqlstmt);
+        System.exit(1);
+      }
     }
   }
 
