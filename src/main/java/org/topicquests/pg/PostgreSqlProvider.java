@@ -28,7 +28,6 @@ import org.topicquests.support.ResultPojo;
 import org.topicquests.support.RootEnvironment;
 import org.topicquests.support.api.IResult;
 
-// import org.postgresql.ds.PGPoolingDataSource;
 import org.apache.commons.dbcp2.*;
 
 public class PostgreSqlProvider extends RootEnvironment 
@@ -36,13 +35,7 @@ public class PostgreSqlProvider extends RootEnvironment
   private final String urx;
   private final Properties props;
 
-  /**
-   * Pools Connections for each local thread
-   * Must be closed when the thread terminates
-   */
-  // private ThreadLocal<Connection> localMapConnection = new ThreadLocal<Connection>();
   private Connection conn = null;
-  // private PGPoolingDataSource source = null;
   private BasicDataSource connectionPool = null;
 
   public PostgreSqlProvider(String dbName, String dbSchema) {

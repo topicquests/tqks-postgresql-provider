@@ -7,7 +7,10 @@ import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
-import org.topicquests.pg.PostgreSqlProvider;
+import org.topicquests.pg.PostgresConnection;
+import org.topicquests.pg.PostgresConnectionFactory;
+import org.topicquests.pg.api.IPostgresConnection;
+import org.topicquests.pg.api.IPostgresConnectionFactory;
 
 import org.topicquests.support.ResultPojo;
 import org.topicquests.support.api.IResult;
@@ -15,15 +18,13 @@ import org.topicquests.support.api.IResult;
 import net.minidev.json.JSONObject;
 
 import java.sql.Connection;
-import java.sql.DriverManager;
-import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 
 import java.util.Properties;
 
-public class PostgreSqlProviderTest {
+public class PostgresConnectionFactoryTest {
 
   private void initAll() {
     System.out.println("in initAll");
@@ -34,13 +35,9 @@ public class PostgreSqlProviderTest {
 
     setupRoot();
 
-    try {
-      conn = provider.getConnection();
-    } catch (Exception e) {
-      fail(e.getMessage());
-    }
     executeStatements(testCreation);
     closeConnection();
+
     try {
       provider.shutDown();
     } catch (SQLException e) {
@@ -124,16 +121,16 @@ public class PostgreSqlProviderTest {
 
     IResult r = null;
     try {
-      provider.beginTransaction(conn);
-      r = provider.executeSQL(conn, sql);
-      provider.endTransaction(conn);
+      conn.beginTransaction();
+      r = conn.executeSQL(sql);
+      conn.endTransaction();
     } catch (SQLException e) {
       fail(e.getMessage());
     }
     
     // Select
     sql = "SELECT json FROM " + VERTEX_TABLE + " where id='" + V_ID + "'";
-    r = provider.executeSelect(conn, sql);
+    r = conn.executeSelect(sql);
     if (r.hasError()) {
       fail("Error in SELECT: " + r.getErrorString());
     }
@@ -151,7 +148,7 @@ public class PostgreSqlProviderTest {
         fail(e.getMessage());
       }
 
-      provider.closeResultSet(rs, r);
+      conn.closeResultSet(rs, r);
       if (r.hasError()) {
         fail(r.getErrorString());
       }
@@ -179,9 +176,9 @@ public class PostgreSqlProviderTest {
     String sql = "INSERT INTO " + VERTEX_TABLE + " values(?, to_json(?::json))";
     IResult r = null;
     try {
-      provider.beginTransaction(conn);
-      r = provider.executeSQL(conn, sql, vals);
-      provider.endTransaction(conn);
+      conn.beginTransaction();
+      r = conn.executeSQL(sql, vals);
+      conn.endTransaction();
     } catch (Exception e) {
       fail(e.getMessage());
     }
@@ -189,7 +186,7 @@ public class PostgreSqlProviderTest {
     // Select
     sql = "SELECT json FROM " + VERTEX_TABLE + " where id=?";
     try {
-      r = provider.executeSelect(conn, sql, V_ID);
+      r = conn.executeSelect(sql, V_ID);
     } catch (Exception e) {
       fail(e.getMessage());
     }
@@ -206,7 +203,7 @@ public class PostgreSqlProviderTest {
         fail(e.getMessage());
       }
 
-      provider.closeResultSet(rs, r);
+      conn.closeResultSet(rs, r);
       if (r.hasError()) {
         fail(r.getErrorString());
       }
@@ -229,9 +226,9 @@ public class PostgreSqlProviderTest {
     IResult r = null;
 
     try {
-      provider.beginTransaction(conn);
-      r = provider.executeSQL(conn, sql);
-      provider.endTransaction(conn);
+      conn.beginTransaction();
+      r = conn.executeSQL(sql);
+      conn.endTransaction();
     } catch (Exception e) {
       fail(e.getMessage());
     }
@@ -239,7 +236,7 @@ public class PostgreSqlProviderTest {
     // Select
     sql = "SELECT * FROM " + USERS_TABLE + " WHERE locator = ?";
     try {
-      r = provider.executeSelect(sql, "locator");
+      r = conn.executeSelect(sql, "locator");
     } catch (Exception e) {
       fail(e.getMessage());
     }
@@ -256,7 +253,7 @@ public class PostgreSqlProviderTest {
         fail(e.getMessage());
       }
 
-      provider.closeResultSet(rs, r);
+      conn.closeResultSet(rs, r);
       if (r.hasError()) {
         fail(r.getErrorString());
       }
@@ -277,9 +274,9 @@ public class PostgreSqlProviderTest {
 
     IResult r = null;
     try {
-      provider.beginTransaction(conn);
-      r = provider.executeSQL(conn, sql);
-      provider.endTransaction(conn);
+      conn.beginTransaction();
+      r = conn.executeSQL(sql);
+      conn.endTransaction();
     } catch (Exception e) {
       fail(e.getMessage());
     }
@@ -295,9 +292,9 @@ public class PostgreSqlProviderTest {
     IResult r = null;
     
     try {
-      provider.beginTransaction(conn);
-      r = provider.executeSelect(conn, sql);
-      provider.endTransaction(conn);
+      conn.beginTransaction();
+      r = conn.executeSelect(sql);
+      conn.endTransaction();
     } catch (SQLException e) {
       fail(e.getMessage());
     }
@@ -314,7 +311,7 @@ public class PostgreSqlProviderTest {
         fail(e.getMessage());
       }
       
-      provider.closeResultSet(rs, r);
+      conn.closeResultSet(rs, r);
       if (r.hasError()) {
         fail(r.getErrorString());
       }
@@ -331,9 +328,9 @@ public class PostgreSqlProviderTest {
     sql = "UPDATE " + VERTEX_TABLE + " SET json = to_json(?::json) WHERE id = ?";
     r = null;
     try {
-      provider.beginTransaction(conn);
-      r = provider.executeUpdate(conn, sql, vals);
-      provider.endTransaction(conn);
+      conn.beginTransaction();
+      r = conn.executeUpdate(sql, vals);
+      conn.endTransaction();
     } catch (Exception e) {
       fail(e.getMessage());
     }
@@ -342,7 +339,7 @@ public class PostgreSqlProviderTest {
     sql = "SELECT json FROM " + VERTEX_TABLE + " where id = ?";
     r = null;
     try {
-      r = provider.executeSelect(conn, sql, V_ID);
+      r = conn.executeSelect(sql, V_ID);
     } catch (Exception e) {
       fail(e.getMessage());
     }
@@ -359,7 +356,7 @@ public class PostgreSqlProviderTest {
         fail(e.getMessage());
       }
       
-      provider.closeResultSet(rs, r);
+      conn.closeResultSet(rs, r);
       if (r.hasError()) {
         fail(r.getErrorString());
       }
@@ -373,7 +370,7 @@ public class PostgreSqlProviderTest {
        
     // Select row with the max id.
     String sql = "SELECT max(id) FROM " + VERTEX_TABLE;
-    IResult r = provider.executeSelect(conn, sql);
+    IResult r = conn.executeSelect(sql);
     
     Object o = r.getResultObject();
     if (o != null) {
@@ -387,7 +384,7 @@ public class PostgreSqlProviderTest {
         fail(e.getMessage());
       }
 
-      provider.closeResultSet(rs, r);
+      conn.closeResultSet(rs, r);
       if (r.hasError()) {
         fail(r.getErrorString());
       }
@@ -405,9 +402,9 @@ public class PostgreSqlProviderTest {
         "' WHERE id = '" + V_ID + "'";
     r = null;
     try {
-      provider.beginTransaction(conn);
-      r = provider.executeUpdate(conn, sql);
-      provider.endTransaction(conn);
+      conn.beginTransaction();
+      r = conn.executeUpdate(sql);
+      conn.endTransaction();
     } catch (Exception e) {
       fail(e.getMessage());
     }
@@ -416,7 +413,7 @@ public class PostgreSqlProviderTest {
     sql = "SELECT json FROM " + VERTEX_TABLE + " where id = ?";
     r = null;
     try {
-      r = provider.executeSelect(conn, sql, V_ID);
+      r = conn.executeSelect(sql, V_ID);
     } catch (Exception e) {
       fail(e.getMessage());
     }
@@ -433,7 +430,7 @@ public class PostgreSqlProviderTest {
         fail(e.getMessage());
       }
 
-      provider.closeResultSet(rs, r);
+      conn.closeResultSet(rs, r);
       if (r.hasError()) {
         fail(r.getErrorString());
       }
@@ -453,7 +450,7 @@ public class PostgreSqlProviderTest {
     String sql = "SELECT * FROM " + VERTEX_TABLE;
     IResult r = null;
     try {
-      r = provider.executeCount(conn, sql);
+      r = conn.executeCount(sql);
     } catch (Exception e) {
       fail(e.getMessage());
     }
@@ -515,9 +512,9 @@ public class PostgreSqlProviderTest {
   //
   // Helper attributes and methods.
   //
-  private static PostgreSqlProvider provider;
+  private static IPostgresConnectionFactory provider;
   private static Properties props;
-  private static Connection conn;
+  private static IPostgresConnection conn;
 
   private static final String ROOT_DB = "postgres";
   private static final String TEST_DB = "testdb";
@@ -539,7 +536,7 @@ public class PostgreSqlProviderTest {
       if (s != null) {
         IResult r = new ResultPojo();
         
-        provider.closeStatement(s, r);
+        conn.closeStatement(s, r);
         if (r.hasError()) {
           fail(r.getErrorString());
         }
@@ -551,7 +548,7 @@ public class PostgreSqlProviderTest {
     if (conn != null) {
       IResult r = new ResultPojo();
 
-      provider.closeConnection(conn, r);
+      conn.closeConnection(r);
       if (r.hasError()) {
         fail(r.getErrorString());
       }
@@ -560,9 +557,8 @@ public class PostgreSqlProviderTest {
   }
   
   private void setupRoot() {
-    provider = new PostgreSqlProvider(ROOT_DB, "RootSchema");
-    provider.setUser("postgres");
-    provider.setPassword("postgres");
+    provider = new PostgresConnectionFactory(ROOT_DB, "",
+                                             "postgres", "postgres");
 
     try {
       conn = provider.getConnection();
@@ -572,9 +568,8 @@ public class PostgreSqlProviderTest {
   }
 
   private void setupTestUser() {
-    provider = new PostgreSqlProvider(TEST_DB, "UserSchema");
-    provider.setUser("testuser");
-    provider.setPassword("testpwd");
+    provider = new PostgresConnectionFactory(TEST_DB, "",
+                                             "testuser", "testpwd");
 
     try {
       conn = provider.getConnection();
@@ -584,9 +579,19 @@ public class PostgreSqlProviderTest {
   }
 
   private void setupTQAdminUser() {
-    provider = new PostgreSqlProvider(TQ_ADMIN_DB, "AdminSchema");
-    provider.setUser("tq_admin");
-    provider.setPassword("tq-admin-pwd");
+    provider = new PostgresConnectionFactory(TQ_ADMIN_DB, "",
+                                             "tq_admin", "tq-admin-pwd");
+
+    try {
+      conn = provider.getConnection();
+    } catch (Exception e) {
+      fail(e.getMessage());
+    }
+  }
+
+  private void setupTemplate() {
+    provider = new PostgresConnectionFactory(TEMPLATE_DB, "",
+                                             "testuser", "testpwd");
 
     try {
       conn = provider.getConnection();
@@ -609,17 +614,5 @@ public class PostgreSqlProviderTest {
     };
 
     executeStatements(setProxyStmt);
-  }
-
-  private void setupTemplate() {
-    provider = new PostgreSqlProvider(TEMPLATE_DB, "TemplateSchema");
-    provider.setUser("testuser");
-    provider.setPassword("testpwd");
-
-    try {
-      conn = provider.getConnection();
-    } catch (Exception e) {
-      fail(e.getMessage());
-    }
   }
 }

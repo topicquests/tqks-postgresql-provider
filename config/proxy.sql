@@ -64,7 +64,7 @@ GRANT SELECT ON tq_contents.superclasses TO tq_proxy_ro;
 -- Create audit record for superclasses changes.
 --
 CREATE TRIGGER tablename_audit_proxy_superclasses
-  AFTER INSERT OR DELETE OR UPDATE ON tq_contents.details FOR EACH ROW
+  AFTER INSERT OR DELETE OR UPDATE ON tq_contents.superclasses FOR EACH ROW
   EXECUTE PROCEDURE audit.if_modified_func();
 
 --
