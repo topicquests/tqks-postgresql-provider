@@ -56,6 +56,16 @@ public interface IPostgresConnection {
   public IResult setSavepoint(String name, IResult result);
 
   /**
+   * Rollback a transaction. If a savepoint is set in a result object,
+   * the transaction will be rolled back to the savepoint.
+   * @param name The name of the savepoint.
+   * @param result Result object that may contain a savepoint object.
+   * @return IResult
+   */
+  public IResult rollback();
+  public IResult rollback(IResult result);
+
+  /**
    * Execute the SQL string in the database.
    * @param sql The SQL string to be executed.
    * @return An IResult object containing the ResultSet and any error messages.
@@ -118,8 +128,8 @@ public interface IPostgresConnection {
    * @param vals The values to be injected into the prepared statement.
    * @return An IResult object containing the ResultSet and any error messages.
    */
-  public IResult executeUpdate(String sql, String... vals);
-  public IResult executeUpdate(String sql, IResult result, String... vals);
+  public IResult executeUpdate(String sql, Object... vals);
+  public IResult executeUpdate(String sql, IResult result, Object... vals);
 
   /**
    * Execute the prepared statement SELECT SQL string in the database.
@@ -127,8 +137,8 @@ public interface IPostgresConnection {
    * @param vals The values to be injected into the prepared statement.
    * @return An IResult object containing the ResultSet and any error messages.
    */
-  public IResult executeSelect(String sql, String... vals);
-  public IResult executeSelect(String sql, IResult Result, String... vals);
+  public IResult executeSelect(String sql, Object... vals);
+  public IResult executeSelect(String sql, IResult Result, Object... vals);
 
   /**
    * Perform a validation of the database.
@@ -137,7 +147,13 @@ public interface IPostgresConnection {
    */
   public IResult validateDatabase(String [] tableSchema);
 
-  public Statement createStatement() throws SQLException;
+  /**
+   * Create a statement object and return a result object.
+   * @param result Result containing a statement object.
+   * @return An IResult object containing the statement object.
+   */
+  public IResult createStatement();
+  public IResult createStatement(IResult result);
 
   public void closeResultSet(ResultSet rs, IResult r);
 

@@ -106,15 +106,24 @@ public class ThreadsTest extends Thread {
     ResultSet  rs   = null;
     Statement  stmt = null;
 
-    try {    
+    try {
+      IResult stmtResult;
+      
       // Get the connection
       if (share_connection)
-        stmt = s_conn.createStatement();
+        stmtResult = s_conn.createStatement();
       else {
         conn = provider.getConnection();
-        stmt = conn.createStatement();
+        stmtResult = conn.createStatement();
       }
 
+      if (stmtResult.hasError()) {
+        System.out.println("ERROR: " + stmtResult.getErrorString());
+        System.exit(1);
+      }
+
+      stmt = (Statement)stmtResult.getResultObject();
+      
       while (!getGreenLight())
         yield();
           

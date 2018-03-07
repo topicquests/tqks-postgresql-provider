@@ -112,6 +112,32 @@ public class PostgresConnection implements IPostgresConnection {
     return result;
   }
 
+  @Override
+  public IResult rollback() {
+    IResult result = new ResultPojo();
+    return rollback(result);
+  }
+
+  @Override
+  public IResult rollback(IResult result) {
+    try {
+      if (conn != null) {
+        Object obj = result.getResultObject();
+
+        if (obj == null) {  // no savepoint in result object
+          conn.rollback();
+        } else {
+          Savepoint svpt = (Savepoint)obj;
+          conn.rollback(svpt);
+        }
+      }
+    } catch(SQLException e) {
+      result.addErrorString(e.getMessage());
+    }
+
+    return result;
+  }
+
   private IResult errorResult(SQLException e) {
     IResult r = new ResultPojo();
     r.addErrorString(e.getMessage());
@@ -287,20 +313,20 @@ public class PostgresConnection implements IPostgresConnection {
   }
 
   @Override
-  public IResult executeUpdate(String sql, String... vals) {
+  public IResult executeUpdate(String sql, Object... vals) {
     IResult result = new ResultPojo();
     return executeUpdate(sql, result, vals);
   }
   
   @Override
-  public IResult executeUpdate(String sql, IResult result, String... vals) {
+  public IResult executeUpdate(String sql, IResult result, Object... vals) {
     PreparedStatement s = null;
 
     try {
       s = conn.prepareStatement(sql);
       int len = vals.length;
       for (int i = 0; i < len; i++) {
-        s.setString(i+1, vals[i]);
+        s.setObject(i+1, vals[i]);
       }
       s.executeUpdate();
     } catch (SQLException e) {
@@ -315,20 +341,20 @@ public class PostgresConnection implements IPostgresConnection {
   }
 
   @Override
-  public IResult executeSelect(String sql, String... vals) {
+  public IResult executeSelect(String sql, Object... vals) {
     IResult result = new ResultPojo();
     return executeSelect(sql, result, vals);
   }
   
   @Override
-  public IResult executeSelect(String sql, IResult result, String... vals) {
+  public IResult executeSelect(String sql, IResult result, Object... vals) {
     PreparedStatement s = null;
 
     try {
       s = conn.prepareStatement(sql);
       int len = vals.length;
       for (int i=0;i<len;i++) {
-        s.setString(i+1, vals[i]);
+        s.setObject(i+1, vals[i]);
       }
       ResultSet rs = s.executeQuery();
       result.setResultObject(rs);
@@ -345,10 +371,25 @@ public class PostgresConnection implements IPostgresConnection {
   }
 
   @Override
-  public Statement createStatement() throws SQLException {
-    return conn.createStatement();
+  public IResult createStatement() {
+    IResult result = new ResultPojo();
+    return createStatement(result);
   }
 
+  @Override
+  public IResult createStatement(IResult result) {
+    try {
+      if (conn != null) {
+        Statement stmt = conn.createStatement();
+        result.setResultObject(stmt);
+      }
+    } catch (SQLException e) {
+      result.addErrorString(e.getMessage());
+    }
+    
+    return result;
+  }
+  
   @Override
   public void closeResultSet(ResultSet rs, IResult r) {
     try {

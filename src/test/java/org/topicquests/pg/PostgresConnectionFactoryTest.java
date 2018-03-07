@@ -516,10 +516,12 @@ public class PostgresConnectionFactoryTest {
     Statement s = null;
     
     try {
-      s = conn.createStatement();
-
-      for (int i = 0; i < stmts.length; i++) {
-        s.execute(stmts[i]);
+      IResult stmtResult = conn.createStatement();
+      if (!stmtResult.hasError()) {
+        s = (Statement)stmtResult.getResultObject();
+        for (int i = 0; i < stmts.length; i++) {
+          s.execute(stmts[i]);
+        }
       }
     } catch (Exception e) {
       fail(e.getMessage());

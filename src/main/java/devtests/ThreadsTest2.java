@@ -81,11 +81,9 @@ public class ThreadsTest2 extends Thread {
   private static void cleanUp() {
     IPostgresConnection conn = null;
     IResult   result  = null;
-    Statement stmt = null;
 
     try {    
       conn = provider.getConnection();
-      stmt = conn.createStatement();
 
       // Begin the transaction for this thread.
       result = conn.beginTransaction();
@@ -110,11 +108,9 @@ public class ThreadsTest2 extends Thread {
   public void run() {
     IPostgresConnection conn = null;
     IResult   result  = null;
-    Statement stmt = null;
 
     try {    
       conn = provider.getConnection();
-      stmt = conn.createStatement();
 
       while (!getGreenLight())
         yield();
@@ -156,10 +152,6 @@ public class ThreadsTest2 extends Thread {
       // End the transaction.
       conn.endTransaction(result);
       checkError(result, "");
-  
-      // Close the statement
-      stmt.close();
-      stmt = null;
   
       // Close the local connection
       if (conn != null) {
