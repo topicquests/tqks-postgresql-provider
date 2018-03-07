@@ -20,7 +20,6 @@ import net.minidev.json.JSONObject;
 import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.sql.Statement;
 
 import java.util.Properties;
 
@@ -469,7 +468,6 @@ public class PostgresConnectionFactoryTest {
     // Create a new provider to drop the test databases.
     setupTemplate();
     
-    Statement s = null;
     String[] testDropDBs = {
       "DROP DATABASE testdb"
     };
@@ -512,29 +510,14 @@ public class PostgresConnectionFactoryTest {
   private static final String TEMPLATE_DB = "template1";
   private static final String TQ_ADMIN_DB = "tq_database";
 
-  static void executeStatements(String[] stmts) {
-    Statement s = null;
+  static IResult executeStatements(String[] stmts) {
+    IResult r = new ResultPojo();
     
-    try {
-      IResult stmtResult = conn.createStatement();
-      if (!stmtResult.hasError()) {
-        s = (Statement)stmtResult.getResultObject();
-        for (int i = 0; i < stmts.length; i++) {
-          s.execute(stmts[i]);
-        }
-      }
-    } catch (Exception e) {
-      fail(e.getMessage());
-    } finally {
-      if (s != null) {
-        IResult r = new ResultPojo();
-        
-        conn.closeStatement(s, r);
-        if (r.hasError()) {
-          fail(r.getErrorString());
-        }
-      }
+    if (conn != null) {
+      conn.executeMultiSQL(stmts, r);
     }
+
+    return r;
   }
 
   private void closeConnection() {
