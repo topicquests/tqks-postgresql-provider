@@ -17,6 +17,7 @@ import org.topicquests.pg.api.IPostgresConnectionFactory;
 import org.topicquests.pg.api.IPostgresConnection;
 import org.topicquests.pg.PostgresConnection;
 import org.topicquests.pg.PostgresConnectionFactory;
+import org.topicquests.pg.PostgresProviderException;
 import org.topicquests.support.api.IResult;
 import org.topicquests.support.ResultPojo;
 
@@ -103,34 +104,30 @@ public class ThreadsTest extends Thread {
 
   public void run() {
     IPostgresConnection conn = null;
-    ResultSet  rs   = null;
-    Statement  stmt = null;
+    ResultSet rs = null;
 
     try {
-      IResult stmtResult;
+      IResult result;
       
       // Get the connection
       if (share_connection)
-        stmtResult = s_conn.createStatement();
-      else {
+        conn = s_conn;
+      else
         conn = provider.getConnection();
-        stmtResult = conn.createStatement();
-      }
 
-      if (stmtResult.hasError()) {
-        System.out.println("ERROR: " + stmtResult.getErrorString());
-        System.exit(1);
-      }
-
-      stmt = (Statement)stmtResult.getResultObject();
-      
       while (!getGreenLight())
         yield();
           
       // Execute the Query
       String sqlstmt = "select * from city where id < " + Integer.toString(m_myId * 3);
-      rs = stmt.executeQuery(sqlstmt);
-          
+      result = conn.executeSelect(sqlstmt);
+
+      if (!result.hasError())
+        rs = (ResultSet)result.getResultObject();
+      else
+        throw new PostgresProviderException("ERROR: query error executing statement '" +
+                                            sqlstmt + "'");
+
       // Loop through the results
       while (rs.next()) {
         System.out.println("Thread " + m_myId + 
@@ -142,10 +139,6 @@ public class ThreadsTest extends Thread {
       // Close all the resources
       rs.close();
       rs = null;
-  
-      // Close the statement
-      stmt.close();
-      stmt = null;
   
       // Close the local connection
       if ((!share_connection) && (conn != null)) {

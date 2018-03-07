@@ -57,9 +57,6 @@ public class PostgresConnection implements IPostgresConnection {
 
   @Override
   public IResult endTransaction(IResult result) {
-    if (result.hasError())
-      return result;
-    
     try {
       if (conn != null) {
         conn.commit();
