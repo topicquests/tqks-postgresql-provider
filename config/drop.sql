@@ -1,13 +1,21 @@
+\c tq_database
+
 -- Switch to the tq_admin user to drop the database for TQ objects.
 SET ROLE tq_admin;
-
-\c tq_database
 
 DROP SCHEMA tq_contents CASCADE;
 DROP SCHEMA tq_authentication CASCADE;
 DROP SCHEMA audit CASCADE;
 
+SET ROLE postgres;
+
+DROP EXTENSION hstore;
+DROP EXTENSION pgcrypto;
+
 \c postgres
+
+-- Switch to the tq_admin user to drop the database for TQ objects.
+SET ROLE tq_admin;
 
 DROP DATABASE tq_database;
 

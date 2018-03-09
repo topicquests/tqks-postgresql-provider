@@ -7,6 +7,12 @@ GRANT USAGE ON schema tq_authentication TO tq_users_ro;
 
 COMMENT ON SCHEMA tq_authentication IS 'Tables to store topic quest users.';
 
+-- Install the pgcrypto extension.
+SET ROLE postgres;
+CREATE EXTENSION IF NOT EXISTS pgcrypto;
+
+SET ROLE tq_admin;
+
 --
 -- Create a locator type.
 --

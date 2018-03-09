@@ -2,14 +2,18 @@
 -- a dedicated audit table for the major relations.
 --
 
-CREATE EXTENSION IF NOT EXISTS hstore;
-
 CREATE SCHEMA audit;
 REVOKE ALL ON SCHEMA audit FROM public;
 GRANT ALL ON schema audit TO tq_users;
 GRANT USAGE ON schema audit TO tq_users_ro;
 
 COMMENT ON SCHEMA audit IS 'Out-of-table audit/history logging tables and trigger functions';
+
+-- Install the hstore extension.
+SET ROLE postgres;
+CREATE EXTENSION IF NOT EXISTS hstore;
+
+SET ROLE tq_admin;
 
 --
 -- Audited data. Lots of information is available, it's just a matter of how much

@@ -31,9 +31,6 @@ CREATE USER tq_admin PASSWORD 'tq-admin-pwd'  -- full access
 CREATE USER tq_user PASSWORD 'tq-user-pwd'  -- limited access
     NOINHERIT IN ROLE tq_users_ro, tq_proxy_ro;
 
-CREATE EXTENSION IF NOT EXISTS pgcrypto;
-
-
 -- Switch to the tq_admin user to create the database for TQ objects.
 SET ROLE tq_admin;
 
@@ -42,6 +39,8 @@ CREATE DATABASE tq_database ENCODING UTF8;
 
 -- Switch to tq_database.
 \c tq_database
+
+SET ROLE tq_admin;
 
 --
 -- Create the audit log table.
