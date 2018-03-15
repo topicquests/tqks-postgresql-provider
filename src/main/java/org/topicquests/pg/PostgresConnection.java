@@ -70,6 +70,65 @@ public class PostgresConnection implements IPostgresConnection {
   }
 
   @Override
+  public IResult setProxyRole() {
+    IResult result = new ResultPojo();
+    return setProxyRole(result);
+  }
+
+  @Override
+  public IResult setProxyRole(IResult result) {
+    String role_sql = "SET ROLE tq_proxy";
+    return setRole(role_sql, result);
+  }
+
+  @Override
+  public IResult setUsersRole() {
+    IResult result = new ResultPojo();
+    return setUsersRole(result);
+  }
+
+  @Override
+  public IResult setUsersRole(IResult result) {
+    String role_sql = "SET ROLE tq_users";
+    return setRole(role_sql, result);
+  }
+
+  @Override
+  public IResult setProxyRORole() {
+    IResult result = new ResultPojo();
+    return setProxyRORole(result);
+  }
+
+  @Override
+  public IResult setProxyRORole(IResult result) {
+    String role_sql = "SET ROLE tq_proxy_ro";
+    return setRole(role_sql, result);
+  }
+
+  @Override
+  public IResult setUsersRORole() {
+    IResult result = new ResultPojo();
+    return setUsersRORole(result);
+  }
+
+  @Override
+  public IResult setUsersRORole(IResult result) {
+    String role_sql = "SET ROLE tq_users_ro";
+    return setRole(role_sql, result);
+  }
+
+  private IResult setRole(String role_sql, IResult result) {
+    if (conn != null) {
+      result = this.executeSQL(role_sql);
+      if (result.hasError()) {
+        return result;
+      }
+    }
+
+    return result;
+  }
+
+  @Override
   public IResult setSavepoint() {
     IResult result = new ResultPojo();
     return setSavepoint(result);

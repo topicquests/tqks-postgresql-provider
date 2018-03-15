@@ -41,6 +41,34 @@ public interface IPostgresConnection {
   public IResult endTransaction(IResult result);
 
   /**
+   * Set the proxy role.
+   * @return IResult
+   */
+  public IResult setProxyRole();
+  public IResult setProxyRole(IResult result);
+
+  /**
+   * Set the users role.
+   * @return IResult
+   */
+  public IResult setUsersRole();
+  public IResult setUsersRole(IResult result);
+
+  /**
+   * Set the proxy read-only role.
+   * @return IResult
+   */
+  public IResult setProxyRORole();
+  public IResult setProxyRORole(IResult result);
+
+  /**
+   * Set the users read-only role.
+   * @return IResult
+   */
+  public IResult setUsersRORole();
+  public IResult setUsersRORole(IResult result);
+
+  /**
    * Set a savepoint.
    * @return IResult
    */
