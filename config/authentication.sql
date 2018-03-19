@@ -16,7 +16,7 @@ SET ROLE tq_admin;
 --
 -- Create a locator type.
 --
-CREATE DOMAIN locator VARCHAR(50) NOT NULL;
+CREATE DOMAIN locator text NOT NULL;
 
 CREATE TABLE IF NOT EXISTS
 tq_authentication.users (
