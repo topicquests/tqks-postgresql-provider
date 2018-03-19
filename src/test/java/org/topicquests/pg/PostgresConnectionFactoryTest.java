@@ -28,29 +28,13 @@ public class PostgresConnectionFactoryTest {
 
   private void initAll() {
     System.out.println("in initAll");
-    String[] testCreation = {
-      "CREATE ROLE testuser WITH LOGIN PASSWORD 'testpwd'",
-      "CREATE DATABASE testdb ENCODING 'UTF-8' OWNER 'testuser'"
-    };
-
-    setupRoot();
-
-    executeStatements(testCreation);
-    closeConnection();
-
-    try {
-      provider.shutDown();
-    } catch (SQLException e) {
-      System.out.println(e.getMessage());
-    }
-
-    setupTestUser();
+    setupTQAdminUser();
     setupDBTables();
   }
 
   private void setupDBTables() {
     System.out.println("in setupDBTables");
-    assertEquals("testuser", provider.getUser());
+    assertEquals("tq_admin", provider.getUser());
 
     final String [] tableSchema = {
       "DROP INDEX IF EXISTS vid",
@@ -95,11 +79,7 @@ public class PostgresConnectionFactoryTest {
     InsertAndSelect3();
     DeleteUser1();
     closeConnection();
-    try {
-      provider.shutDown();
-    } catch (SQLException e) {
-      System.out.println(e.getMessage());
-    }
+    shutDownProvider();
   }
 
   void InsertAndSelect() {
@@ -109,7 +89,7 @@ public class PostgresConnectionFactoryTest {
         EDGE_TABLE      = "edge",
         V_ID            = Long.toString(System.currentTimeMillis());
 
-    assertEquals("testuser", provider.getUser());
+    assertEquals("tq_admin", provider.getUser());
 
     // Generate Some SQL
     JSONObject jo = new JSONObject();
@@ -161,7 +141,7 @@ public class PostgresConnectionFactoryTest {
         EDGE_TABLE      = "edge",
         V_ID            = Long.toString(System.currentTimeMillis());
 
-    assertEquals("testuser", provider.getUser());
+    assertEquals("tq_admin", provider.getUser());
 
     // Generate Some SQL
     JSONObject jo = new JSONObject();
@@ -435,7 +415,7 @@ public class PostgresConnectionFactoryTest {
         EDGE_TABLE      = "edge",
         V_ID            = Long.toString(System.currentTimeMillis());
 
-    assertEquals("testuser", provider.getUser());
+    assertEquals("tq_admin", provider.getUser());
 
     // Select
     String sql = "SELECT * FROM " + VERTEX_TABLE;
@@ -458,45 +438,17 @@ public class PostgresConnectionFactoryTest {
   
   private void tearDownAll() {
     System.out.println("in tearDownAll");
-    // Drop the testuser provider
-    closeConnection();
-    try {
-      provider.shutDown();
-    } catch (SQLException e) {
-      System.out.println(e.getMessage());
-    }
 
-    // Create a new provider to drop the test databases.
-    setupTemplate();
-    
     String[] testDropDBs = {
-      "DROP DATABASE testdb"
+      "DROP INDEX IF EXISTS vid",
+      "DROP INDEX IF EXISTS eid",
+      "DROP TABLE IF EXISTS vertex",
+      "DROP TABLE IF EXISTS edge"
     };
 
     executeStatements(testDropDBs);
     closeConnection();
-    try {
-      provider.shutDown();
-    } catch (SQLException e) {
-      System.out.println(e.getMessage());
-    }
-
-    String[] testDropUser = {
-      "DROP ROLE testuser"
-    };
-    setupRoot();
-    try {
-      conn = provider.getConnection();
-    } catch (Exception e) {
-      fail(e.getMessage());
-    }
-    executeStatements(testDropUser);
-    closeConnection();
-    try {
-      provider.shutDown();
-    } catch (SQLException e) {
-      System.out.println(e.getMessage());
-    }
+    shutDownProvider();
   }
 
   //
@@ -516,6 +468,8 @@ public class PostgresConnectionFactoryTest {
     
     if (conn != null) {
       conn.executeMultiSQL(stmts, r);
+      if (r.hasError())
+        fail(r.getErrorString());
     }
 
     return r;
@@ -533,29 +487,8 @@ public class PostgresConnectionFactoryTest {
     }
   }
   
-  private void setupRoot() {
-    provider = new PostgresConnectionFactory(ROOT_DB, "",
-                                             "postgres", "postgres");
-
-    try {
-      conn = provider.getConnection();
-    } catch (Exception e) {
-      fail(e.getMessage());
-    }
-  }
-
-  private void setupTestUser() {
-    provider = new PostgresConnectionFactory(TEST_DB, "",
-                                             "testuser", "testpwd");
-
-    try {
-      conn = provider.getConnection();
-    } catch (Exception e) {
-      fail(e.getMessage());
-    }
-  }
-
   private void setupTQAdminUser() {
+    System.out.println("Setting up DB connection as tq_admin user...");
     provider = new PostgresConnectionFactory(TQ_ADMIN_DB, "",
                                              "tq_admin", "tq-admin-pwd");
 
@@ -564,15 +497,13 @@ public class PostgresConnectionFactoryTest {
     } catch (Exception e) {
       fail(e.getMessage());
     }
+    System.out.println("DONE - Setting up DB connection as tq_admin user...");
   }
 
-  private void setupTemplate() {
-    provider = new PostgresConnectionFactory(TEMPLATE_DB, "",
-                                             "testuser", "testpwd");
-
+  private void shutDownProvider() {
     try {
-      conn = provider.getConnection();
-    } catch (Exception e) {
+      provider.shutDown();
+    } catch (SQLException e) {
       fail(e.getMessage());
     }
   }
