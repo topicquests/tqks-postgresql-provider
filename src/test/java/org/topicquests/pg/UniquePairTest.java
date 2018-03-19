@@ -28,29 +28,13 @@ public class UniquePairTest {
 
   private void initAll() {
     System.out.println("in initAll");
-    String[] testCreation = {
-      "CREATE ROLE testuser WITH LOGIN PASSWORD 'testpwd'",
-      "CREATE DATABASE testdb ENCODING 'UTF-8' OWNER 'testuser'"
-    };
-
-    setupRoot();
-
-    executeStatements(testCreation);
-    closeConnection();
-
-    try {
-      provider.shutDown();
-    } catch (SQLException e) {
-      System.out.println(e.getMessage());
-    }
-
-    setupTestUser();
+    setupTQAdminUser();
     setupDBTables();
   }
 
   private void setupDBTables() {
     System.out.println("in setupDBTables");
-    assertEquals("testuser", provider.getUser());
+    assertEquals("tq_admin", provider.getUser());
 
     final String [] tableSchema = {
       "DROP TABLE IF EXISTS vertex",
@@ -77,7 +61,7 @@ public class UniquePairTest {
         VERTEX_TABLE	= "vertex",
         V_ID            = Long.toString(System.currentTimeMillis());
 
-    assertEquals("testuser", provider.getUser());
+    assertEquals("tq_admin", provider.getUser());
 
     // Insert
     String pstmt = "insert into vertex (id, value) " +
@@ -113,7 +97,7 @@ public class UniquePairTest {
     System.out.println("in getRowCount");
     final String VERTEX_TABLE = "vertex";
 
-    assertEquals("testuser", provider.getUser());
+    assertEquals("tq_admin", provider.getUser());
 
     // Select
     String sql = "SELECT * FROM " + VERTEX_TABLE;
@@ -136,45 +120,14 @@ public class UniquePairTest {
   
   private void tearDownAll() {
     System.out.println("in tearDownAll");
-    // Drop the testuser provider
-    closeConnection();
-    try {
-      provider.shutDown();
-    } catch (SQLException e) {
-      System.out.println(e.getMessage());
-    }
 
-    // Create a new provider to drop the test databases.
-    setupTemplate();
-    
     String[] testDropDBs = {
       "DROP DATABASE testdb"
     };
 
     executeStatements(testDropDBs);
     closeConnection();
-    try {
-      provider.shutDown();
-    } catch (SQLException e) {
-      System.out.println(e.getMessage());
-    }
-
-    String[] testDropUser = {
-      "DROP ROLE testuser"
-    };
-    setupRoot();
-    try {
-      conn = provider.getConnection();
-    } catch (Exception e) {
-      fail(e.getMessage());
-    }
-    executeStatements(testDropUser);
-    closeConnection();
-    try {
-      provider.shutDown();
-    } catch (SQLException e) {
-      System.out.println(e.getMessage());
-    }
+    shutDownProvider();
   }
 
   //
@@ -187,6 +140,7 @@ public class UniquePairTest {
   private static final String ROOT_DB = "postgres";
   private static final String TEST_DB = "testdb";
   private static final String TEMPLATE_DB = "template1";
+  private static final String TQ_ADMIN_DB = "tq_database";
 
   static IResult executeStatements(String[] stmts) {
     IResult r = new ResultPojo();
@@ -210,36 +164,25 @@ public class UniquePairTest {
     }
   }
   
-  private void setupRoot() {
-    provider = new PostgresConnectionFactory(ROOT_DB, "",
-                                             "postgres", "postgres");
+  private void setupTQAdminUser() {
+    System.out.println("Setting up DB connection as tq_admin user...");
+    provider = new PostgresConnectionFactory(TQ_ADMIN_DB, "",
+                                             "tq_admin", "tq-admin-pwd");
 
     try {
       conn = provider.getConnection();
     } catch (Exception e) {
       fail(e.getMessage());
     }
+    System.out.println("DONE - Setting up DB connection as tq_admin user...");
   }
 
-  private void setupTestUser() {
-    provider = new PostgresConnectionFactory(TEST_DB, "",
-                                             "testuser", "testpwd");
-
+  private void shutDownProvider() {
     try {
-      conn = provider.getConnection();
-    } catch (Exception e) {
+      provider.shutDown();
+    } catch (SQLException e) {
       fail(e.getMessage());
     }
   }
 
-  private void setupTemplate() {
-    provider = new PostgresConnectionFactory(TEMPLATE_DB, "",
-                                             "testuser", "testpwd");
-
-    try {
-      conn = provider.getConnection();
-    } catch (Exception e) {
-      fail(e.getMessage());
-    }
-  }
 }
