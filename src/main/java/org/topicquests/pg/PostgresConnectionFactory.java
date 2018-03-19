@@ -52,7 +52,7 @@ public class PostgresConnectionFactory extends RootEnvironment
       password = getStringProperty("DbPwd");
     }
     
-    urx = "jdbc:postgresql://" + dbUrl + /*":"+_dbPort+*/ "/" + dbName;
+    urx = "jdbc:postgresql://" + dbUrl + ":" + dbPort + "/" + dbName;
     if (dbSchema != "") {
       urx += "?currentSchema=" + dbSchema;
     }
