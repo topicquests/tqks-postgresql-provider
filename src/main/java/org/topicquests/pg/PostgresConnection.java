@@ -304,7 +304,8 @@ public class PostgresConnection implements IPostgresConnection {
 
     try {
       s = conn.createStatement();
-      s.executeUpdate(sql);
+      int rowcount = s.executeUpdate(sql);
+      result.setResultObject(new Integer(rowcount));
     } catch (SQLException e) {
       result.addErrorString(e.getMessage());
     } finally {
