@@ -160,6 +160,15 @@ public interface IPostgresConnection {
   public IResult executeUpdate(String sql, IResult result, Object... vals);
 
   /**
+   * Execute the prepared statement for batch inserts/updates.
+   * @param stmts The prepared statement to be executed.
+   * @param vals The values to be injected into the prepared statement.
+   * @return An IResult object containing the number of rows updated and any error messages.
+   */
+  public IResult executeBatch(String sql, Object... vals);
+  public IResult executeBatch(String sql, IResult result, Object... vals);
+
+  /**
    * Execute the prepared statement SELECT SQL string in the database.
    * @param stmts The prepared statement to be executed.
    * @param vals The values to be injected into the prepared statement.

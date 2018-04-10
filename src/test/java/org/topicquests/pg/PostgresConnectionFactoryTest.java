@@ -63,6 +63,7 @@ public class PostgresConnectionFactoryTest {
     initAll();
     InsertAndSelect();
     InsertAndSelect2();
+    BatchInsertAndSelect();
     updateRow1();
     updateRow2();
     getRowCount();
@@ -176,6 +177,65 @@ public class PostgresConnectionFactoryTest {
 
       try {
         if (rs.next()) {
+          assertEquals("{\"Hello\":\"World\"}", rs.getString("json"));
+        }
+      } catch (Exception e) {
+        fail(e.getMessage());
+      }
+
+      conn.closeResultSet(rs, r);
+      if (r.hasError()) {
+        fail(r.getErrorString());
+      }
+    }
+  }
+  
+  void BatchInsertAndSelect() {
+    System.out.println("in BatchInsertAndSelect");
+    final String VERTEX_TABLE = "vertex";
+    final int numRows = 20;
+
+    assertEquals("tq_admin", provider.getUser());
+
+    // Generate Some SQL
+    JSONObject jo = new JSONObject();
+    jo.put("Hello", "World");
+
+    String[] vals = new String[numRows * 2];
+    for (int i = 0; i < numRows; i++) {
+      int idx1 = 2*i;
+      int idx2 = 2*i+1;
+      vals[idx1] = Integer.toString(i);
+      vals[idx2] = jo.toJSONString();
+      System.out.println("row #" + i + " - (" + idx1 + "," + idx2 + ") {" + vals[idx1] + ", " + vals[idx2] + "}");
+    }
+    
+    // Batch Insert
+    String sql = "INSERT INTO " + VERTEX_TABLE + " values(?, to_json(?::json))";
+    IResult r = null;
+    try {
+      conn.beginTransaction();
+      r = conn.executeBatch(sql, vals);
+      conn.endTransaction();
+    } catch (Exception e) {
+      fail(e.getMessage());
+    }
+
+    // Select
+    sql = "SELECT * FROM " + VERTEX_TABLE;
+    try {
+      r = conn.executeSelect(sql);
+    } catch (Exception e) {
+      fail(e.getMessage());
+    }
+    Object o = r.getResultObject();
+
+    if (o != null) {
+      ResultSet rs = (ResultSet)o;
+
+      try {
+        while (rs.next()) {
+          System.out.println("id: " + rs.getString("id") + ", json: " + rs.getString("json"));
           assertEquals("{\"Hello\":\"World\"}", rs.getString("json"));
         }
       } catch (Exception e) {
@@ -430,7 +490,7 @@ public class PostgresConnectionFactoryTest {
 
     if (o != null) {
       Long count = (Long)o;
-      assertEquals(2, count.longValue());
+      assertEquals(22, count.longValue());
     } else {
       fail("count not found");
     }

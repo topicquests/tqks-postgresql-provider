@@ -398,6 +398,43 @@ public class PostgresConnection implements IPostgresConnection {
   }
 
   @Override
+  public IResult executeBatch(String sql, Object... vals) {
+    IResult result = new ResultPojo();
+    return executeBatch(sql, result, vals);
+  }
+  
+  @Override
+  public IResult executeBatch(String sql, IResult result, Object... vals) {
+    PreparedStatement s = null;
+    System.out.println("--- in executeBatch");
+
+    try {
+      s = conn.prepareStatement(sql);
+      int paramCount = s.getParameterMetaData().getParameterCount();
+      int len = vals.length;
+      System.out.println("executeBatch - len: " + len + ", paramCount: " + paramCount);
+      
+      for (int i = 0; i < len;) {
+        for (int j = 1; j <= paramCount; j++, i++) {
+          System.out.println("executeBatch - setObject: (" + j + ", " + vals[i] + ")");
+          s.setObject(j, vals[i]);
+        }
+        s.addBatch();
+      }
+      int[] inserted = s.executeBatch();
+      result.setResultObject(new Integer(inserted.length));
+    } catch (SQLException e) {
+      result.addErrorString(e.getMessage());
+    } finally {
+      if (s != null) {
+        this.closeStatement(s, result);
+      }
+    }
+
+    return result;
+  }
+
+  @Override
   public IResult executeSelect(String sql, Object... vals) {
     IResult result = new ResultPojo();
     return executeSelect(sql, result, vals);
