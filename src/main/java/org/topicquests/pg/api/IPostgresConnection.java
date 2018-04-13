@@ -55,6 +55,13 @@ public interface IPostgresConnection {
   public IResult setUsersRole(IResult result);
 
   /**
+   * Set the role to access the conversation tree.
+   * @return IResult
+   */
+  public IResult setConvRole();
+  public IResult setConvRole(IResult result);
+
+  /**
    * Set the proxy read-only role.
    * @return IResult
    */
@@ -67,6 +74,13 @@ public interface IPostgresConnection {
    */
   public IResult setUsersRORole();
   public IResult setUsersRORole(IResult result);
+
+  /**
+   * Set the role to access the conversation tree in read-only mode.
+   * @return IResult
+   */
+  public IResult setConvRORole();
+  public IResult setConvRORole(IResult result);
 
   /**
    * Set a savepoint.

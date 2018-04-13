@@ -94,6 +94,18 @@ public class PostgresConnection implements IPostgresConnection {
   }
 
   @Override
+  public IResult setConvRole() {
+    IResult result = new ResultPojo();
+    return setConvRole(result);
+  }
+
+  @Override
+  public IResult setConvRole(IResult result) {
+    String role_sql = "SET ROLE tq_conv";
+    return setRole(role_sql, result);
+  }
+
+  @Override
   public IResult setProxyRORole() {
     IResult result = new ResultPojo();
     return setProxyRORole(result);
@@ -114,6 +126,18 @@ public class PostgresConnection implements IPostgresConnection {
   @Override
   public IResult setUsersRORole(IResult result) {
     String role_sql = "SET ROLE tq_users_ro";
+    return setRole(role_sql, result);
+  }
+
+  @Override
+  public IResult setConvRORole() {
+    IResult result = new ResultPojo();
+    return setConvRORole(result);
+  }
+
+  @Override
+  public IResult setConvRORole(IResult result) {
+    String role_sql = "SET ROLE tq_conv_ro";
     return setRole(role_sql, result);
   }
 
@@ -275,7 +299,6 @@ public class PostgresConnection implements IPostgresConnection {
                                ResultSet.CONCUR_READ_ONLY);
       rs = s.executeQuery(sql);
       rs.last();
-      System.out.println("count: " + rs.getRow());
       result.setResultObject(new Long(rs.getRow()));
     } catch (SQLException e) {
       result.addErrorString(e.getMessage());

@@ -78,6 +78,7 @@ public class PostgresConnectionFactoryTest {
   void TestTQProxy() {
     setupTQAdminUser();
     InsertAndSelect3();
+    InsertAndSelect4();
     DeleteUser1();
     closeConnection();
     shutDownProvider();
@@ -288,6 +289,69 @@ public class PostgresConnectionFactoryTest {
         if (rs.next()) {
           assertEquals("handle", rs.getString("handle"));
         }
+      } catch (Exception e) {
+        fail(e.getMessage());
+      }
+
+      conn.closeResultSet(rs, r);
+      if (r.hasError()) {
+        fail(r.getErrorString());
+      }
+    }
+  }
+  
+  void InsertAndSelect4() {
+    System.out.println("in InsertAndSelect4");
+    final String TREE_TABLE = "tq_tree.conv";
+    final String CONTEXT = "context1";
+
+    assertEquals("tq_admin", provider.getUser());
+
+    // Insert into conv tree table
+    String sql = "INSERT INTO " + TREE_TABLE +
+        " (context, lox, parent_lox) VALUES (?, ?, ?)";
+    IResult r = null;
+
+    String[] insert_vals = {CONTEXT, "loxroot", "",
+                            CONTEXT, "lox1", "loxroot",
+                            CONTEXT, "lox2", "loxroot",
+                            CONTEXT, "lox3", "loxroot",
+                            CONTEXT, "lox4", "lox1",
+                            CONTEXT, "lox5", "lox1",
+                            CONTEXT, "lox6", "lox2"
+    };
+
+    try {
+      conn.setConvRole();
+      conn.beginTransaction();
+      r = conn.executeBatch(sql, insert_vals);;
+      conn.endTransaction();
+    } catch (Exception e) {
+      fail(e.getMessage());
+    }
+
+    // Select
+    sql = "SELECT * FROM " + TREE_TABLE + " WHERE context = ?";
+    try {
+      r = conn.executeSelect(sql, CONTEXT);
+    } catch (Exception e) {
+      fail(e.getMessage());
+    }
+    Object o = r.getResultObject();
+
+    if (o != null) {
+      ResultSet rs = (ResultSet)o;
+
+      try {
+        while (rs.next()) {
+          System.out.println("---------------");
+          System.out.println("id: " + rs.getInt("id"));
+          System.out.println("context: " + rs.getString("context"));
+          System.out.println("lox: " + rs.getString("lox"));
+          System.out.println("parent: " + rs.getString("parent_lox"));
+          System.out.println("path: " + rs.getString("parent_path"));
+        }
+        System.out.println("---------------");
       } catch (Exception e) {
         fail(e.getMessage());
       }
