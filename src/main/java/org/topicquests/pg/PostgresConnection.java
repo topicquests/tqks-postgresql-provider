@@ -78,6 +78,7 @@ public class PostgresConnection implements IPostgresConnection {
   @Override
   public IResult setProxyRole(IResult result) {
     String role_sql = "SET ROLE tq_proxy";
+    resetRole(result);
     return setRole(role_sql, result);
   }
 
@@ -90,6 +91,7 @@ public class PostgresConnection implements IPostgresConnection {
   @Override
   public IResult setUsersRole(IResult result) {
     String role_sql = "SET ROLE tq_users";
+    resetRole(result);
     return setRole(role_sql, result);
   }
 
@@ -102,6 +104,7 @@ public class PostgresConnection implements IPostgresConnection {
   @Override
   public IResult setConvRole(IResult result) {
     String role_sql = "SET ROLE tq_conv";
+    resetRole(result);
     return setRole(role_sql, result);
   }
 
@@ -114,6 +117,7 @@ public class PostgresConnection implements IPostgresConnection {
   @Override
   public IResult setProxyRORole(IResult result) {
     String role_sql = "SET ROLE tq_proxy_ro";
+    resetRole(result);
     return setRole(role_sql, result);
   }
 
@@ -126,6 +130,7 @@ public class PostgresConnection implements IPostgresConnection {
   @Override
   public IResult setUsersRORole(IResult result) {
     String role_sql = "SET ROLE tq_users_ro";
+    resetRole(result);
     return setRole(role_sql, result);
   }
 
@@ -138,6 +143,19 @@ public class PostgresConnection implements IPostgresConnection {
   @Override
   public IResult setConvRORole(IResult result) {
     String role_sql = "SET ROLE tq_conv_ro";
+    resetRole(result);
+    return setRole(role_sql, result);
+  }
+
+  @Override
+  public IResult resetRole() {
+    IResult result = new ResultPojo();
+    return resetRole(result);
+  }
+
+  @Override
+  public IResult resetRole(IResult result) {
+    String role_sql = "RESET ROLE";
     return setRole(role_sql, result);
   }
 

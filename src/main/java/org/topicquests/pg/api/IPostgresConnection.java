@@ -83,6 +83,13 @@ public interface IPostgresConnection {
   public IResult setConvRORole(IResult result);
 
   /**
+   * Reset the role to the original current_user.
+   * @return IResult
+   */
+  public IResult resetRole();
+  public IResult resetRole(IResult result);
+
+  /**
    * Set a savepoint.
    * @return IResult
    */
