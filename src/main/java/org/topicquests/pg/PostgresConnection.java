@@ -15,6 +15,9 @@
  */
 package org.topicquests.pg;
 
+import java.io.InputStream;
+import java.math.BigInteger;
+import java.math.BigDecimal;
 import java.sql.*;
 import java.util.*;
 
@@ -394,10 +397,7 @@ public class PostgresConnection implements IPostgresConnection {
 
     try {
       s = conn.prepareStatement(sql);
-      int len = vals.length;
-      for (int i = 0; i < len; i++) {
-        s.setObject(i+1, vals[i]);
-      }
+      setParamValues(s, vals);
       s.execute();
     } catch (SQLException e) {
       result.addErrorString(e.getMessage());
@@ -422,10 +422,7 @@ public class PostgresConnection implements IPostgresConnection {
 
     try {
       s = conn.prepareStatement(sql);
-      int len = vals.length;
-      for (int i = 0; i < len; i++) {
-        s.setObject(i+1, vals[i]);
-      }
+      setParamValues(s, vals);
       s.executeUpdate();
     } catch (SQLException e) {
       result.addErrorString(e.getMessage());
@@ -485,10 +482,7 @@ public class PostgresConnection implements IPostgresConnection {
 
     try {
       s = conn.prepareStatement(sql);
-      int len = vals.length;
-      for (int i=0;i<len;i++) {
-        s.setObject(i+1, vals[i]);
-      }
+      setParamValues(s, vals);
       ResultSet rs = s.executeQuery();
       result.setResultObject(rs);
     } catch (SQLException e) {
@@ -565,4 +559,53 @@ public class PostgresConnection implements IPostgresConnection {
     }	
   }
 
+  private void setParamValues(PreparedStatement s, Object... vals) throws SQLException {
+    int len = vals.length;
+
+    for (int i = 0; i < len; i++) {
+      if (vals[i] == null) {
+        s.setNull(i+1, java.sql.Types.OTHER);
+      } else {
+        if (vals[i] instanceof Byte) {
+          s.setInt(i+1, ((Byte) vals[i]).intValue());
+        } else if (vals[i] instanceof String) {
+          s.setString(i+1, (String) vals[i]);
+        } else if (vals[i] instanceof BigDecimal) {
+          s.setBigDecimal(i+1, (BigDecimal) vals[i]);
+        } else if (vals[i] instanceof Short) {
+          s.setShort(i+1, ((Short) vals[i]).shortValue());
+        } else if (vals[i] instanceof Integer) {
+          s.setInt(i+1, ((Integer) vals[i]).intValue());
+        } else if (vals[i] instanceof Long) {
+          s.setLong(i+1, ((Long) vals[i]).longValue());
+        } else if (vals[i] instanceof Float) {
+          s.setFloat(i+1, ((Float) vals[i]).floatValue());
+        } else if (vals[i] instanceof Double) {
+          s.setDouble(i+1, ((Double) vals[i]).doubleValue());
+        } else if (vals[i] instanceof byte[]) {
+          s.setBytes(i+1, (byte[]) vals[i]);
+        } else if (vals[i] instanceof java.sql.Date) {
+          s.setDate(i+1, (java.sql.Date) vals[i]);
+        } else if (vals[i] instanceof Time) {
+          s.setTime(i+1, (Time) vals[i]);
+        } else if (vals[i] instanceof Timestamp) {
+          s.setTimestamp(i+1, (Timestamp) vals[i]);
+        } else if (vals[i] instanceof Boolean) {
+          s.setBoolean(i+1, ((Boolean) vals[i]).booleanValue());
+        } else if (vals[i] instanceof InputStream) {
+          s.setBinaryStream(i+1, (InputStream) vals[i], -1);
+        } else if (vals[i] instanceof java.sql.Blob) {
+          s.setBlob(i+1, (java.sql.Blob) vals[i]);
+        } else if (vals[i] instanceof java.sql.Clob) {
+          s.setClob(i+1, (java.sql.Clob) vals[i]);
+        } else if (vals[i] instanceof java.util.Date) {
+          s.setTimestamp(i+1, new Timestamp(((java.util.Date) vals[i]).getTime()));
+        } else if (vals[i] instanceof BigInteger) {
+          s.setString(i+1, vals[i].toString());
+        } else {
+          s.setObject(i+1, vals[i]);
+        }
+      }
+    }
+  }
 }
