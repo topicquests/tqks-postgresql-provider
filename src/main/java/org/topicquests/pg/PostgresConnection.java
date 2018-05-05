@@ -29,10 +29,12 @@ import org.topicquests.support.api.IResult;
 import org.apache.commons.dbcp2.*;
 
 public class PostgresConnection implements IPostgresConnection {
-  private Connection conn = null;
+	private PostgresConnectionFactory environment;
+	private Connection conn = null;
 
-  public PostgresConnection(Connection con) {
-    conn = con;
+  public PostgresConnection(Connection con, PostgresConnectionFactory env) {
+    environment = env;
+	  conn = con;
   }
 
   @Override
@@ -66,6 +68,7 @@ public class PostgresConnection implements IPostgresConnection {
         conn.setAutoCommit(true);
       }
     } catch (SQLException e) {
+    	environment.logError(e.getMessage(), e);
       result.addErrorString(e.getMessage());
     }
 
@@ -262,13 +265,15 @@ public class PostgresConnection implements IPostgresConnection {
       s = conn.createStatement();
       s.execute(sql);
     } catch (SQLException e) {
-      result.addErrorString(e.getMessage());
+    	environment.logError(e.getMessage(), e);
+     result.addErrorString(e.getMessage());
     } finally {
       if (s != null) {
         try {
           s.close();
         } catch (SQLException x) {
-          result.addErrorString(x.getMessage());					
+        	environment.logError(x.getMessage(), x);
+         result.addErrorString(x.getMessage());					
         }
       }
     }
@@ -322,13 +327,15 @@ public class PostgresConnection implements IPostgresConnection {
       rs.last();
       result.setResultObject(new Long(rs.getRow()));
     } catch (SQLException e) {
-      result.addErrorString(e.getMessage());
+    	environment.logError(e.getMessage(), e);
+     result.addErrorString(e.getMessage());
     } finally {
       if (s != null) {
         try {
           s.close();
         } catch (SQLException x) {
-          result.addErrorString(x.getMessage());					
+        	environment.logError(x.getMessage(), x);
+         result.addErrorString(x.getMessage());					
         }
       }
     }
@@ -344,20 +351,22 @@ public class PostgresConnection implements IPostgresConnection {
   
   @Override
   public IResult executeUpdate(String sql, IResult result) {
-    Statement s = null;
+   Statement s = null;
 
     try {
       s = conn.createStatement();
       int rowcount = s.executeUpdate(sql);
       result.setResultObject(new Integer(rowcount));
     } catch (SQLException e) {
-      result.addErrorString(e.getMessage());
+    	environment.logError(e.getMessage(), e);
+     result.addErrorString(e.getMessage());
     } finally {
       if (s != null) {
         try {
           s.close();
         } catch (SQLException x) {
-          result.addErrorString(x.getMessage());					
+        	environment.logError(x.getMessage(), x);
+         result.addErrorString(x.getMessage());					
         }
       }
     }
@@ -373,13 +382,15 @@ public class PostgresConnection implements IPostgresConnection {
   
   @Override
   public IResult executeSelect(String sql, IResult result) {
-    Statement s = null;
+
+	  Statement s = null;
 
     try {
       s = conn.createStatement();
       ResultSet rs = s.executeQuery(sql);
       result.setResultObject(rs);
     } catch (SQLException e) {
+    	environment.logError(e.getMessage(), e);
       result.addErrorString(e.getMessage());
     }
     return result;
@@ -400,6 +411,7 @@ public class PostgresConnection implements IPostgresConnection {
       setParamValues(s, vals);
       s.execute();
     } catch (SQLException e) {
+    	environment.logError(e.getMessage(), e);
       result.addErrorString(e.getMessage());
     } finally {
       if (s != null) {
@@ -418,13 +430,17 @@ public class PostgresConnection implements IPostgresConnection {
   
   @Override
   public IResult executeUpdate(String sql, IResult result, Object... vals) {
-    PreparedStatement s = null;
+
+	  PreparedStatement s = null;
 
     try {
       s = conn.prepareStatement(sql);
       setParamValues(s, vals);
-      s.executeUpdate();
+      int rowcount = s.executeUpdate();
+      result.setResultObject(new Integer(rowcount));
+
     } catch (SQLException e) {
+    	environment.logError(e.getMessage(), e);
       result.addErrorString(e.getMessage());
     } finally {
       if (s != null) {
@@ -460,6 +476,7 @@ public class PostgresConnection implements IPostgresConnection {
       int[] inserted = s.executeBatch();
       result.setResultObject(new Integer(inserted.length));
     } catch (SQLException e) {
+    	environment.logError(e.getMessage(), e);
       result.addErrorString(e.getMessage());
     } finally {
       if (s != null) {
@@ -486,6 +503,7 @@ public class PostgresConnection implements IPostgresConnection {
       ResultSet rs = s.executeQuery();
       result.setResultObject(rs);
     } catch (SQLException e) {
+    	environment.logError(e.getMessage(), e);
       result.addErrorString(e.getMessage());
     }
     
@@ -511,6 +529,7 @@ public class PostgresConnection implements IPostgresConnection {
         result.setResultObject(stmt);
       }
     } catch (SQLException e) {
+    	environment.logError(e.getMessage(), e);
       result.addErrorString(e.getMessage());
     }
     
@@ -523,6 +542,7 @@ public class PostgresConnection implements IPostgresConnection {
       if (rs != null)
         rs.close();
     } catch (SQLException e) {
+    	environment.logError(e.getMessage(), e);
       r.addErrorString(e.getMessage());
     }
   }
@@ -533,6 +553,7 @@ public class PostgresConnection implements IPostgresConnection {
       if (conn != null)
         conn.close();
     } catch (SQLException e) {
+    	environment.logError(e.getMessage(), e);
       r.addErrorString(e.getMessage());
     } finally {
       conn = null;
@@ -545,7 +566,8 @@ public class PostgresConnection implements IPostgresConnection {
       if (s != null)
         s.close();
     } catch (SQLException e) {
-      r.addErrorString(e.getMessage());
+    	environment.logError(e.getMessage(), e);
+     r.addErrorString(e.getMessage());
     }
   }
 
@@ -555,7 +577,8 @@ public class PostgresConnection implements IPostgresConnection {
       if (s != null)
         s.close();
     } catch (SQLException e) {
-      r.addErrorString(e.getMessage());
+    	environment.logError(e.getMessage(), e);
+     r.addErrorString(e.getMessage());
     }	
   }
 

@@ -40,7 +40,7 @@ public class PostgresConnectionFactory extends RootEnvironment
   public PostgresConnectionFactory(String dbName, String dbSchema,
                                    String user, String password) {
     super("postgress-props.xml", "logger.properties");
-    
+    logDebug("PostgresConnectionFactory starting");
     String dbUrl = getStringProperty("DatabaseURL");
     String dbPort = getStringProperty("DatabasePort");
     int    clientCacheSize = Integer.parseInt(getStringProperty("ClientCacheSize"));
@@ -97,7 +97,7 @@ public class PostgresConnectionFactory extends RootEnvironment
   @Override
   public IPostgresConnection getConnection() throws SQLException {
     Connection con = connectionPool.getConnection();
-    return new PostgresConnection(con);
+    return new PostgresConnection(con, this);
   }
 
   @Override
