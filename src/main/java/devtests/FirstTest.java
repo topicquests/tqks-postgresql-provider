@@ -5,7 +5,8 @@ package devtests;
 
 import java.sql.SQLException;
 
-import org.topicquests.pg.PostgreSqlProvider;
+import org.topicquests.pg.PostgresConnectionFactory;
+import org.topicquests.pg.api.IPostgresConnectionFactory;
 import org.topicquests.support.api.IResult;
 
 /**
@@ -13,7 +14,7 @@ import org.topicquests.support.api.IResult;
  *
  */
 public class FirstTest {
-	private PostgreSqlProvider provider;
+	private IPostgresConnectionFactory provider;
 	public final String
 		VERTEX_TABLE	= "vertex",
 		EDGE_TABLE		= "edge",
@@ -41,9 +42,8 @@ public class FirstTest {
 	 * 
 	 */
 	public FirstTest() {
-                provider = new PostgreSqlProvider(DB_NAME, "FirstTestSchema");
-		IResult r = provider.validateDatabase(tableSchema);
-		System.out.println("AAA "+r.getErrorString());
+                provider = new PostgresConnectionFactory(DB_NAME, "FirstTestSchema");
+                
                 try {
                   provider.shutDown();
                 } catch (SQLException e) {
