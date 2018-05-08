@@ -28,8 +28,7 @@ import net.minidev.json.parser.JSONParser;
 public class DocumizerTest {
 	private IPostgresConnectionFactory library;
 	private IPostgresConnectionFactory working;
-    //private IPostgresConnection li = null;
-
+ 
 	private static final String
 		LIB_DB_NAME 	= "test_library",
 		WORK_DB_NAME	= "test_working",
