@@ -41,12 +41,6 @@ public interface IPostgresConnectionFactory {
   public void setPassword(String password);
 
   /**
-   * Get the properties used to set up the connection pool.
-   * @return The properties from the connection pool.
-   */
-  public Properties getProps();
-
-  /**
    * Get a connection from the connection pool.
    * @return A database connection from the connection pool.
    */

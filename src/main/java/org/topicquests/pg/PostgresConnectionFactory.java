@@ -29,12 +29,18 @@ import org.apache.commons.dbcp2.*;
 public class PostgresConnectionFactory extends RootEnvironment 
     implements IPostgresConnectionFactory {
   private String urx;
-  private final Properties props;
-
   private BasicDataSource connectionPool = null;
+
+  public PostgresConnectionFactory(String dbName) {
+    this(dbName, null, null, null);
+  }
 
   public PostgresConnectionFactory(String dbName, String dbSchema) {
     this(dbName, dbSchema, null, null);
+  }
+
+  public PostgresConnectionFactory(String dbName, String user, String password) {
+    this(dbName, null, user, password);
   }
 
   public PostgresConnectionFactory(String dbName, String dbSchema,
@@ -53,21 +59,14 @@ public class PostgresConnectionFactory extends RootEnvironment
     }
     
     urx = "jdbc:postgresql://" + dbUrl + ":" + dbPort + "/" + dbName;
-    if (dbSchema != "") {
+    if ((dbSchema != null) && (dbSchema != "")) {
       urx += "?currentSchema=" + dbSchema;
     }
     
-    props = new Properties();
-    props.setProperty("user", user);
-
-    // must allow for no password
-    if (password != null && !password.equals(""))
-      props.setProperty("password", password);
-
     connectionPool = new BasicDataSource();
+    this.setUser(user);
+    this.setPassword(password);
     connectionPool.setMaxOpenPreparedStatements(20);
-    connectionPool.setUsername(user);
-    connectionPool.setPassword(password);
     connectionPool.setDriverClassName("org.postgresql.Driver");
     connectionPool.setUrl(urx);
     connectionPool.setInitialSize(1);
@@ -87,11 +86,6 @@ public class PostgresConnectionFactory extends RootEnvironment
   @Override
   public void setPassword(String password) {
     connectionPool.setPassword(password);
-  }
-
-  @Override
-  public Properties getProps() {
-    return props;
   }
 
   @Override
