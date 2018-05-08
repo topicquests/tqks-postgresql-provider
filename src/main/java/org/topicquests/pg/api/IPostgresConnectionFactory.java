@@ -23,32 +23,32 @@ import java.util.Properties;
 public interface IPostgresConnectionFactory {
 
   /**
-   * Get the user name set in the connection pool.
-   * @return The user name from the connection pool.
+   * Get the user name set in the connection factory.
+   * @return The user name from the connection factory.
    */
   public String getUser();
 
   /**
-   * Set the user name in the connection pool.
-   * @param The user name to use in the connection pool.
+   * Set the user name in the connection factory.
+   * @param user The user name to use in the connection factory.
    */
   public void setUser(String user);
 
   /**
-   * Set the password for the user in the connection pool.
-   * @param The password for the user in the connection pool.
+   * Set the password for the user in the connection factory.
+   * @param password The password for the user in the connection factory.
    */
   public void setPassword(String password);
 
   /**
-   * Get a connection from the connection pool.
-   * @return A database connection from the connection pool.
+   * Get a connection from the connection factory.
+   * @return A database connection from the connection factory.
    */
   public IPostgresConnection getConnection() throws SQLException;
 
   /**
-   * Shut down the connection pool.
-   * @throws A SQLException if the pool does not shut down properly.
+   * Shut down the connection factory.
+   * @throws SQLException if the connection factory does not shut down properly.
    */
   public void shutDown() throws SQLException;
 }

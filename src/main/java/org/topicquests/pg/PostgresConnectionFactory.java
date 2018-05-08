@@ -31,18 +31,41 @@ public class PostgresConnectionFactory extends RootEnvironment
   private String urx;
   private BasicDataSource connectionPool = null;
 
+  /**
+   * Create a connection factory to produce database connections to
+   * a PostgreSQL database.
+   * @param dbName The name of the database that will be used for all generated connections from this factory.
+   */
   public PostgresConnectionFactory(String dbName) {
     this(dbName, null, null, null);
   }
 
+  /**
+   * Create a connection factory to produce database connections to a PostgreSQL database.
+   * @param dbName The name of the database that will be used for all generated connections from this factory.
+   * @param dbSchema The name of the schema contained in the specified database.
+   */
   public PostgresConnectionFactory(String dbName, String dbSchema) {
     this(dbName, dbSchema, null, null);
   }
 
+  /**
+   * Create a connection factory to produce database connections to a PostgreSQL database.
+   * @param dbName The name of the database that will be used for all generated connections from this factory.
+   * @param user The name of the database user.
+   * @param password The password for the database user.
+   */
   public PostgresConnectionFactory(String dbName, String user, String password) {
     this(dbName, null, user, password);
   }
 
+  /**
+   * Create a connection factory to produce database connections to a PostgreSQL database.
+   * @param dbName The name of the database that will be used for all generated connections from this factory.
+   * @param dbSchema The name of the schema contained in the specified database.
+   * @param user The name of the database user.
+   * @param password The password for the database user.
+   */
   public PostgresConnectionFactory(String dbName, String dbSchema,
                                    String user, String password) {
     super("postgress-props.xml", "logger.properties");
@@ -73,27 +96,42 @@ public class PostgresConnectionFactory extends RootEnvironment
     connectionPool.setMaxTotal(10);
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public String getUser() {
     return connectionPool.getUsername();
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public void setUser(String user) {
     connectionPool.setUsername(user);
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public void setPassword(String password) {
     connectionPool.setPassword(password);
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public IPostgresConnection getConnection() throws SQLException {
     Connection con = connectionPool.getConnection();
     return new PostgresConnection(con, this);
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public void shutDown() throws SQLException {
     try {
