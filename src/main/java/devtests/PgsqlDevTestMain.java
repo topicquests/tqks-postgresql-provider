@@ -15,7 +15,8 @@ public class PgsqlDevTestMain {
 	public static void main(String[] args) {
           //new FirstTest();
           //new SecondTest();
-          new ThirdTest();
+          //new ThirdTest();
+		new DocumizerTest();
 	}
 
 }

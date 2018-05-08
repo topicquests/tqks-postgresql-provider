@@ -1,0 +1,26 @@
+2018-05-08 14:56:16 DEBUG LoggingPlatform:38 - PostgresConnectionFactory starting
+2018-05-08 14:56:16 DEBUG LoggingPlatform:38 - PostgresConnectionFactory starting
+2018-05-08 15:01:47 DEBUG LoggingPlatform:38 - PostgresConnectionFactory starting
+2018-05-08 15:01:48 DEBUG LoggingPlatform:38 - PostgresConnectionFactory starting
+2018-05-08 15:07:09 DEBUG LoggingPlatform:38 - PostgresConnectionFactory starting
+2018-05-08 15:07:09 DEBUG LoggingPlatform:38 - PostgresConnectionFactory starting
+2018-05-08 15:07:09 ERROR LoggingPlatform:45 - ERROR: null value in column "id" violates not-null constraint
+  Detail: Failing row contains (null, null, null, null).
+org.postgresql.util.PSQLException: ERROR: null value in column "id" violates not-null constraint
+  Detail: Failing row contains (null, null, null, null).
+	at org.postgresql.core.v3.QueryExecutorImpl.receiveErrorResponse(QueryExecutorImpl.java:2433)
+	at org.postgresql.core.v3.QueryExecutorImpl.processResults(QueryExecutorImpl.java:2178)
+	at org.postgresql.core.v3.QueryExecutorImpl.execute(QueryExecutorImpl.java:306)
+	at org.postgresql.jdbc.PgStatement.executeInternal(PgStatement.java:441)
+	at org.postgresql.jdbc.PgStatement.execute(PgStatement.java:365)
+	at org.postgresql.jdbc.PgPreparedStatement.executeWithFlags(PgPreparedStatement.java:155)
+	at org.postgresql.jdbc.PgPreparedStatement.execute(PgPreparedStatement.java:144)
+	at org.apache.commons.dbcp2.DelegatingPreparedStatement.execute(DelegatingPreparedStatement.java:197)
+	at org.apache.commons.dbcp2.DelegatingPreparedStatement.execute(DelegatingPreparedStatement.java:197)
+	at org.topicquests.pg.PostgresConnection.executeSQL(PostgresConnection.java:412)
+	at devtests.DocumizerTest.post(DocumizerTest.java:102)
+	at devtests.DocumizerTest.runTest(DocumizerTest.java:73)
+	at devtests.DocumizerTest.<init>(DocumizerTest.java:49)
+	at devtests.PgsqlDevTestMain.main(PgsqlDevTestMain.java:19)
+2018-05-08 15:10:37 DEBUG LoggingPlatform:38 - PostgresConnectionFactory starting
+2018-05-08 15:10:37 DEBUG LoggingPlatform:38 - PostgresConnectionFactory starting
