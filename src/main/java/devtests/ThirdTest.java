@@ -6,7 +6,9 @@ package devtests;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 
-import org.topicquests.pg.PostgreSqlProvider;
+import org.topicquests.pg.PostgresConnectionFactory;
+import org.topicquests.pg.api.IPostgresConnectionFactory;
+import org.topicquests.pg.api.IPostgresConnection;
 import org.topicquests.support.api.IResult;
 
 import net.minidev.json.JSONObject;
@@ -16,7 +18,8 @@ import net.minidev.json.JSONObject;
  *
  */
 public class ThirdTest {
-	private PostgreSqlProvider provider;
+	private IPostgresConnectionFactory provider;
+        private IPostgresConnection conn = null;
 	public final String
 		VERTEX_TABLE	= "vertex",
 		EDGE_TABLE		= "edge",
@@ -27,7 +30,13 @@ public class ThirdTest {
 	 * 
 	 */
 	public ThirdTest() {
-                provider = new PostgreSqlProvider(DB_NAME, "ThirdTestSchema");
+          try {
+                provider = new PostgresConnectionFactory(DB_NAME, "ThirdTestSchema");
+                conn = provider.getConnection();
+          } catch (SQLException e) {
+                System.out.println("SecondTest ERROR " + e.getMessage());
+          }
+                
 		// Generate Some SQL
 		JSONObject jo = new JSONObject();
 		jo.put("Hello", "World");
@@ -36,11 +45,11 @@ public class ThirdTest {
 		vals[1]=jo.toJSONString();
 		// Insert something
 		String sql = "INSERT INTO "+VERTEX_TABLE+" values(?, ?)";
-		IResult r = provider.executeSQL(sql, vals);
+		IResult r = conn.executeSQL(sql, vals);
 		System.out.println("AAA "+r.getErrorString());
 		// Get it back
 		sql = "SELECT json FROM "+VERTEX_TABLE+" where id=?";
-		r = provider.executeSelect(sql, V_ID);
+		r = conn.executeSelect(sql, V_ID);
 		Object o = r.getResultObject();
 		System.out.println("BBB "+r.getErrorString()+" | "+o);
 		if (o != null) {
@@ -62,6 +71,7 @@ BBB  | org.postgresql.jdbc.PgResultSet@224aed64
  */
 		
                 try {
+                  conn.closeConnection(r);
                   provider.shutDown();
                 } catch (SQLException e) {
                   System.out.println(e.getMessage());

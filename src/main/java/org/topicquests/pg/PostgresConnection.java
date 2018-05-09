@@ -37,12 +37,18 @@ public class PostgresConnection implements IPostgresConnection {
 	  conn = con;
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public IResult beginTransaction() {
     IResult result = new ResultPojo();
     return beginTransaction(result);
   }
   
+  /**
+   * {@inheritDoc}
+   */
   public IResult beginTransaction(IResult result) {
     try {
       if (conn != null)
@@ -54,12 +60,18 @@ public class PostgresConnection implements IPostgresConnection {
     return result;
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public IResult endTransaction() {
     IResult result = new ResultPojo();
     return endTransaction(result);
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public IResult endTransaction(IResult result) {
     try {
@@ -75,12 +87,18 @@ public class PostgresConnection implements IPostgresConnection {
     return result;
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public IResult setProxyRole() {
     IResult result = new ResultPojo();
     return setProxyRole(result);
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public IResult setProxyRole(IResult result) {
     String role_sql = "SET ROLE tq_proxy";
@@ -88,12 +106,18 @@ public class PostgresConnection implements IPostgresConnection {
     return setRole(role_sql, result);
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public IResult setUsersRole() {
     IResult result = new ResultPojo();
     return setUsersRole(result);
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public IResult setUsersRole(IResult result) {
     String role_sql = "SET ROLE tq_users";
@@ -101,12 +125,18 @@ public class PostgresConnection implements IPostgresConnection {
     return setRole(role_sql, result);
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public IResult setConvRole() {
     IResult result = new ResultPojo();
     return setConvRole(result);
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public IResult setConvRole(IResult result) {
     String role_sql = "SET ROLE tq_conv";
@@ -114,12 +144,18 @@ public class PostgresConnection implements IPostgresConnection {
     return setRole(role_sql, result);
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public IResult setProxyRORole() {
     IResult result = new ResultPojo();
     return setProxyRORole(result);
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public IResult setProxyRORole(IResult result) {
     String role_sql = "SET ROLE tq_proxy_ro";
@@ -127,12 +163,18 @@ public class PostgresConnection implements IPostgresConnection {
     return setRole(role_sql, result);
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public IResult setUsersRORole() {
     IResult result = new ResultPojo();
     return setUsersRORole(result);
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public IResult setUsersRORole(IResult result) {
     String role_sql = "SET ROLE tq_users_ro";
@@ -140,12 +182,18 @@ public class PostgresConnection implements IPostgresConnection {
     return setRole(role_sql, result);
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public IResult setConvRORole() {
     IResult result = new ResultPojo();
     return setConvRORole(result);
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public IResult setConvRORole(IResult result) {
     String role_sql = "SET ROLE tq_conv_ro";
@@ -153,12 +201,18 @@ public class PostgresConnection implements IPostgresConnection {
     return setRole(role_sql, result);
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public IResult resetRole() {
     IResult result = new ResultPojo();
     return resetRole(result);
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public IResult resetRole(IResult result) {
     String role_sql = "RESET ROLE";
@@ -176,12 +230,18 @@ public class PostgresConnection implements IPostgresConnection {
     return result;
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public IResult setSavepoint() {
     IResult result = new ResultPojo();
     return setSavepoint(result);
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public IResult setSavepoint(IResult result) {
     try {
@@ -196,12 +256,18 @@ public class PostgresConnection implements IPostgresConnection {
     return result;
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public IResult setSavepoint(String name) {
     IResult result = new ResultPojo();
     return setSavepoint(name, result);
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public IResult setSavepoint(String name, IResult result) {
     try {
@@ -216,12 +282,18 @@ public class PostgresConnection implements IPostgresConnection {
     return result;
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public IResult rollback() {
     IResult result = new ResultPojo();
     return rollback(result);
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public IResult rollback(IResult result) {
     try {
@@ -248,12 +320,18 @@ public class PostgresConnection implements IPostgresConnection {
     return r;
   }
 	
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public IResult executeSQL(String sql) {
     IResult result = new ResultPojo();
     return executeSQL(sql, result);
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public IResult executeSQL(String sql, IResult result) {
     Statement s = null;
@@ -281,24 +359,36 @@ public class PostgresConnection implements IPostgresConnection {
     return result;
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public IResult executeMultiSQL(String[] stmts) {
     List<String> sqlList = Arrays.asList(stmts);
     return executeMultiSQL(sqlList);
   }
   
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public IResult executeMultiSQL(String[] stmts, IResult result) {
     List<String> sqlList = Arrays.asList(stmts);
     return executeMultiSQL(sqlList, result);
   }
   
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public IResult executeMultiSQL(List<String> sql) {
     IResult result = new ResultPojo();
     return executeMultiSQL(sql, result);
   }
   
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public IResult executeMultiSQL(List<String> sql, IResult result) {
     Iterator<String> itr = sql.iterator();
@@ -309,12 +399,18 @@ public class PostgresConnection implements IPostgresConnection {
     return result;
   }
 	
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public IResult executeCount(String sql) {
     IResult result = new ResultPojo();
     return executeCount(sql, result);
   }
   
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public IResult executeCount(String sql, IResult result) {
     Statement s = null;
@@ -343,12 +439,18 @@ public class PostgresConnection implements IPostgresConnection {
     return result;		
   }
 	
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public IResult executeUpdate(String sql) {
     IResult result = new ResultPojo();
     return executeUpdate(sql, result);
   }
   
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public IResult executeUpdate(String sql, IResult result) {
    Statement s = null;
@@ -374,12 +476,18 @@ public class PostgresConnection implements IPostgresConnection {
     return result;
   }
 	
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public IResult executeSelect(String sql) {
     IResult result = new ResultPojo();
     return executeSelect(sql, result);
   }
   
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public IResult executeSelect(String sql, IResult result) {
 
@@ -396,12 +504,18 @@ public class PostgresConnection implements IPostgresConnection {
     return result;
   }
   
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public IResult executeSQL(String sql, Object... vals) {
     IResult result = new ResultPojo();
     return executeSQL(sql, result, vals);
   }
   
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public IResult executeSQL(String sql, IResult result, Object... vals) {
     PreparedStatement s = null;
@@ -422,12 +536,18 @@ public class PostgresConnection implements IPostgresConnection {
     return result;		
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public IResult executeUpdate(String sql, Object... vals) {
     IResult result = new ResultPojo();
     return executeUpdate(sql, result, vals);
   }
   
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public IResult executeUpdate(String sql, IResult result, Object... vals) {
 
@@ -451,12 +571,18 @@ public class PostgresConnection implements IPostgresConnection {
     return result;
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public IResult executeBatch(String sql, Object... vals) {
     IResult result = new ResultPojo();
     return executeBatch(sql, result, vals);
   }
   
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public IResult executeBatch(String sql, IResult result, Object... vals) {
     PreparedStatement s = null;
@@ -487,12 +613,18 @@ public class PostgresConnection implements IPostgresConnection {
     return result;
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public IResult executeSelect(String sql, Object... vals) {
     IResult result = new ResultPojo();
     return executeSelect(sql, result, vals);
   }
   
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public IResult executeSelect(String sql, IResult result, Object... vals) {
     PreparedStatement s = null;
@@ -510,17 +642,26 @@ public class PostgresConnection implements IPostgresConnection {
     return result;
   }
 	
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public IResult validateDatabase(String [] tableSchema) {
     return this.executeMultiSQL(tableSchema);
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public IResult createStatement() {
     IResult result = new ResultPojo();
     return createStatement(result);
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public IResult createStatement(IResult result) {
     try {
@@ -536,6 +677,9 @@ public class PostgresConnection implements IPostgresConnection {
     return result;
   }
   
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public void closeResultSet(ResultSet rs, IResult r) {
     try {
@@ -547,6 +691,9 @@ public class PostgresConnection implements IPostgresConnection {
     }
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public void closeConnection(IResult r) {
     try {
@@ -560,6 +707,9 @@ public class PostgresConnection implements IPostgresConnection {
     }
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public void closeStatement(Statement s, IResult r) {
     try {
@@ -571,6 +721,9 @@ public class PostgresConnection implements IPostgresConnection {
     }
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public void closeStatement(PreparedStatement s, IResult r) {
     try {
