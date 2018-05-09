@@ -6,7 +6,6 @@ package devtests;
 import java.sql.ResultSet;
 import java.util.UUID;
 
-import org.topicquests.pg.PostgreSqlProvider;
 import org.topicquests.pg.PostgresConnectionFactory;
 import org.topicquests.pg.api.IPostgresConnection;
 import org.topicquests.pg.api.IPostgresConnectionFactory;
