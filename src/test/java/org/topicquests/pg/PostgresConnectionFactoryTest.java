@@ -66,6 +66,7 @@ public class PostgresConnectionFactoryTest {
     BatchInsertAndSelect();
     updateRow1();
     updateRow2();
+    rollbackTest();
     getRowCount();
     tearDownAll();
   }
@@ -531,6 +532,79 @@ public class PostgresConnectionFactoryTest {
       }
     }
   }
+
+  void rollbackTest() {
+    System.out.println("in rollbackTest");
+    final String TREE_TABLE = "tq_tree.conv";
+    final String CONTEXT = "context1";
+
+    assertEquals("tq_admin", provider.getUser());
+
+    // Get the current row count in the tree table.
+    int startRowCount = getTreeTableCount();
+
+    // Insert into conv tree table
+    String sql = "INSERT INTO " + TREE_TABLE +
+        " (context, lox, parent_lox) VALUES (?, ?, ?)";
+    IResult r = null;
+
+    String[] insert_vals = {CONTEXT, "loxroot1", "",
+                            CONTEXT, "lox1a", "loxroot1",
+                            CONTEXT, "lox2a", "loxroot1",
+                            CONTEXT, "lox3a", "loxroot1",
+                            CONTEXT, "lox4a", "lox1a",
+                            CONTEXT, "lox5a", "lox1a",
+                            CONTEXT, "lox6a", "lox2a"
+    };
+
+    // Start a transaction, insert some values into the conversation tree,
+    // then rollback the transaction.
+    try {
+      conn.setConvRole();
+      conn.beginTransaction();
+      r = conn.executeBatch(sql, insert_vals);
+      r = conn.rollback();
+      if (r.hasError()) {
+        fail(r.getErrorString());
+      }
+      
+      conn.closeConnection(r);
+      conn = provider.getConnection();
+    } catch (Exception e) {
+      fail(e.getMessage());
+    }
+
+    // Get the row count in the tree table after rollback.
+    int endRowCount = getTreeTableCount();
+
+    System.out.println("rollbackTest: start count = " + startRowCount + ", end count = " + endRowCount);
+    // start and end counts should be the same
+    assertEquals(startRowCount, endRowCount);
+  }
+
+  private int getTreeTableCount() {
+    final String TREE_TABLE = "tq_tree.conv";
+    final String CONTEXT = "context1";
+    int rowCount = 0;
+
+    // Select
+    String sql = "SELECT * FROM " + TREE_TABLE + " WHERE context = ?";
+    IResult r = null;
+    try {
+      r = conn.executeCount(sql);
+    } catch (Exception e) {
+      fail(e.getMessage());
+    }
+
+    Object o = r.getResultObject();
+
+    if (o != null) {
+      Long count = (Long)o;
+      rowCount = count.intValue();
+    }
+
+    return rowCount;
+  }
   
   void getRowCount() {
     System.out.println("in getRowCount");
@@ -539,6 +613,8 @@ public class PostgresConnectionFactoryTest {
         EDGE_TABLE      = "edge",
         V_ID            = Long.toString(System.currentTimeMillis());
 
+    setUserRole();
+
     assertEquals("tq_admin", provider.getUser());
 
     // Select
@@ -546,6 +622,9 @@ public class PostgresConnectionFactoryTest {
     IResult r = null;
     try {
       r = conn.executeCount(sql);
+      if (r.hasError()) {
+        fail(r.getErrorString());
+      }
     } catch (Exception e) {
       fail(e.getMessage());
     }
@@ -613,8 +692,7 @@ public class PostgresConnectionFactoryTest {
   
   private void setupTQAdminUser() {
     System.out.println("Setting up DB connection as tq_admin user...");
-    provider = new PostgresConnectionFactory(TQ_ADMIN_DB, "",
-                                             "tq_admin", "tq-admin-pwd");
+    provider = new PostgresConnectionFactory(TQ_ADMIN_DB, "tq_admin", "tq-admin-pwd");
 
     try {
       conn = provider.getConnection();

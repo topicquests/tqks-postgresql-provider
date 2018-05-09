@@ -295,6 +295,25 @@ public class PostgresConnection implements IPostgresConnection {
    * {@inheritDoc}
    */
   @Override
+  public IResult rollback(Savepoint svpt) {
+    IResult result = new ResultPojo();
+    result.setResultObject(svpt);
+    return rollback(result);
+  }
+
+  /**
+   * {@inheritDoc}
+   */
+  @Override
+  public IResult rollback(Savepoint svpt, IResult result) {
+    result.setResultObject(svpt);
+    return rollback(result);
+  }
+
+  /**
+   * {@inheritDoc}
+   */
+  @Override
   public IResult rollback(IResult result) {
     try {
       if (conn != null) {

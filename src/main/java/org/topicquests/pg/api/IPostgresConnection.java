@@ -175,6 +175,18 @@ public interface IPostgresConnection {
   public IResult rollback();
 
   /**
+   * Rollback a transaction to the given savepoint.
+   * @return IResult
+   */
+  public IResult rollback(Savepoint svpt);
+
+  /**
+   * Rollback a transaction to the given savepoint. 
+   * @return updated IResult
+   */
+  public IResult rollback(Savepoint svpt, IResult result);
+
+  /**
    * Rollback a transaction. If a savepoint is set in a result object,
    * the transaction will be rolled back to the savepoint.
    * @param result Result object that may contain a java.sql.Savepoint object.
