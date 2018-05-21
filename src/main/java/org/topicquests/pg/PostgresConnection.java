@@ -660,6 +660,28 @@ public class PostgresConnection implements IPostgresConnection {
     
     return result;
   }
+  
+  /**
+   * {@inheritDoc}
+   */
+  @Override
+  public IResult executeSelect(String sql, IResult result, int resultSetType,
+          int resultSetConcurrency, Object... vals) {
+	    PreparedStatement s = null;
+
+	    try {
+	      s = conn.prepareStatement(sql, resultSetType, resultSetConcurrency);
+	      if (vals != null)
+	    	  setParamValues(s, vals);
+	      ResultSet rs = s.executeQuery();
+	      result.setResultObject(rs);
+	    } catch (SQLException e) {
+	    	environment.logError(e.getMessage(), e);
+	      result.addErrorString(e.getMessage());
+	    }
+	    
+	    return result;
+  }
 	
   /**
    * {@inheritDoc}

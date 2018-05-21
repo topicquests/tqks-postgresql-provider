@@ -353,6 +353,18 @@ public interface IPostgresConnection {
   public IResult executeSelect(String sql, IResult result, Object... vals);
 
   /**
+   * Execute the prepared statement SELECT SQL
+   * @param sql
+   * @param result
+   * @param resultSetType
+   * @param resultSetConcurrency
+   * @param vals can be <code>null</code>
+   * @return
+   */
+  public IResult executeSelect(String sql, IResult result, int resultSetType,
+          int resultSetConcurrency, Object... vals);
+
+  /**
    * Perform a validation of the database.
    * @param tableSchema An array of SQL statements to be executed.
    * @return An IResult object containing the ResultSet and any error messages.
