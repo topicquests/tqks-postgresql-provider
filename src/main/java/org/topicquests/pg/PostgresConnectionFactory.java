@@ -71,7 +71,7 @@ public class PostgresConnectionFactory extends RootEnvironment
     super("postgress-props.xml", "logger.properties");
     logDebug("PostgresConnectionFactory starting");
     String dbUrl = getStringProperty("DatabaseURL");
-    String dbPort = getStringProperty("DatabasePort");
+    int    dbPort = Integer.parseInt(getStringProperty("DatabasePort"));
     int    clientCacheSize = Integer.parseInt(getStringProperty("ClientCacheSize"));
 
     if (user == null) {
@@ -81,17 +81,12 @@ public class PostgresConnectionFactory extends RootEnvironment
       password = getStringProperty("DbPwd");
     }
     
-    urx = "jdbc:postgresql://" + dbUrl + ":" + dbPort + "/" + dbName;
-    if ((dbSchema != null) && (dbSchema != "")) {
-      urx += "?currentSchema=" + dbSchema;
-    }
-    
     connectionPool = new BasicDataSource();
     this.setUser(user);
     this.setPassword(password);
+    this.setUrl(dbUrl, dbPort, dbName, dbSchema);
     connectionPool.setMaxOpenPreparedStatements(20);
     connectionPool.setDriverClassName("org.postgresql.Driver");
-    connectionPool.setUrl(urx);
     connectionPool.setInitialSize(1);
     connectionPool.setMaxTotal(10);
   }
@@ -118,6 +113,43 @@ public class PostgresConnectionFactory extends RootEnvironment
   @Override
   public void setPassword(String password) {
     connectionPool.setPassword(password);
+  }
+
+  /**
+   * {@inheritDoc}
+   */
+  @Override
+  public String getUrl() {
+    return connectionPool.getUrl();
+  }
+
+  /**
+   * {@inheritDoc}
+   */
+  @Override
+  public void setUrl(String url) {
+    connectionPool.setUrl(url);
+  }
+
+  /**
+   * {@inheritDoc}
+   */
+  @Override
+  public void setUrl(String hostName, int port, String dbName) {
+    this.setUrl(hostName, port, dbName, null);
+  }
+
+  /**
+   * {@inheritDoc}
+   */
+  @Override
+  public void setUrl(String hostName, int port, String dbName, String schema) {
+    urx = "jdbc:postgresql://" + hostName + ":" + port + "/" + dbName;
+    if ((schema != null) && (schema != "")) {
+      urx += "?currentSchema=" + schema;
+    }
+
+    this.setUrl(urx);
   }
 
   /**

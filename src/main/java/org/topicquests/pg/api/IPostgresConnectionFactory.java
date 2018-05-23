@@ -41,6 +41,35 @@ public interface IPostgresConnectionFactory {
   public void setPassword(String password);
 
   /**
+   * Get the URL set in the connection factory.
+   * @return The URL from the connection factory.
+   */
+  public String getUrl();
+
+  /**
+   * Set the URL in the connection factory.
+   * @param user The URL to use in the connection factory.
+   */
+  public void setUrl(String url);
+
+  /**
+   * Set the URL in the connection factory.
+   * @param hostName The host to use in the URL.
+   * @param port     The port to use in the URL.
+   * @param dbName   The database name to use in the URL.
+   */
+  public void setUrl(String hostName, int port, String dbName);
+
+  /**
+   * Set the URL in the connection factory.
+   * @param hostName The host to use in the URL.
+   * @param port     The port to use in the URL.
+   * @param dbName   The database name to use in the URL.
+   * @param schema   The database schema to use in the URL.
+   */
+  public void setUrl(String hostName, int port, String dbName, String schema);
+
+  /**
    * Get a connection from the connection factory.
    * @return A database connection from the connection factory.
    */
