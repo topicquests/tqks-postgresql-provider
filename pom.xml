@@ -4,7 +4,7 @@
     <groupId>org.topicquests</groupId>
     <artifactId>tqks-postgresql-provider</artifactId>
     <packaging>jar</packaging>
-    <version>0.9.0-SNAPSHOT</version>
+    <version>0.10.0-SNAPSHOT</version>
     <name>tqks-postgresql-provider</name>
     <developers>
         <developer>
@@ -12,12 +12,6 @@
             <name>Jack Park</name>
             <url>https://github.com/KnowledgeGarden</url>
             <id>KnowledgeGarden</id>
-        </developer>
-        <developer>
-            <email>alec@wenzowski.com</email>
-            <name>Alec Wenzowski</name>
-            <url>https://github.com/wenzowski</url>
-            <id>wenzowski</id>
         </developer>
         <developer>
             <email>jstewart148@gmail.com</email>
@@ -51,6 +45,16 @@
     </repositories>
     <reporting>
       <plugins>
+       <!-- required for jdk > 1.8 -->
+       <plugin>
+       		<groupId>org.apache.maven.plugins</groupId>
+       		<artifactId>maven-compiler-plugin</artifactId>
+       		<configuration>
+           		<source>1.6</source>
+           		<target>1.6</target>
+       		</configuration>
+		</plugin>
+  
         <plugin>
           <groupId>org.apache.maven.plugins</groupId>
           <artifactId>maven-surefire-report-plugin</artifactId>
@@ -81,21 +85,7 @@
             <aggregate>true</aggregate>
           </configuration>
         </plugin>
-        <plugin>
-          <groupId>org.owasp</groupId>
-          <artifactId>dependency-check-maven</artifactId>
-          <version>3.1.1</version>
-          <configuration>
-            <name>Dependency Check</name>
-          </configuration>
-          <reportSets>
-            <reportSet>
-              <reports>
-                <report>aggregate</report>
-              </reports>
-            </reportSet>
-          </reportSets>
-        </plugin>
+ 
         <plugin>
           <groupId>org.apache.maven.plugins</groupId>
           <artifactId>maven-pmd-plugin</artifactId>
@@ -134,6 +124,15 @@
     </reporting>
     <build>
         <plugins>
+           <!-- required for jdk > 1.8 -->
+       <plugin>
+       		<groupId>org.apache.maven.plugins</groupId>
+       		<artifactId>maven-compiler-plugin</artifactId>
+       		<configuration>
+           		<source>1.6</source>
+           		<target>1.6</target>
+       		</configuration>
+		</plugin>
             <plugin>
                 <groupId>org.sonatype.plugins</groupId>
                 <artifactId>nexus-staging-maven-plugin</artifactId>
@@ -213,20 +212,13 @@
             <plugin>
                 <groupId>org.owasp</groupId>
                 <artifactId>dependency-check-maven</artifactId>
-                <version>3.1.2</version>
-   <!--             <configuration>
+                <version>2.1.1</version>
+                <configuration>
                     <cveValidForHours>12</cveValidForHours>
                     <failBuildOnCVSS>4</failBuildOnCVSS>
-                    <suppressionFile>dependency-suppression.xml</suppressionFile>
-                </configuration> -->
-                <executions>
-                    <execution>
-                        <goals>
-                            <goal>check</goal>
-                        </goals>
-                    </execution>
-                </executions>
+                </configuration>
             </plugin>
+
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-site-plugin</artifactId>
@@ -258,7 +250,7 @@
       <dependency>
         <groupId>org.postgresql</groupId>
         <artifactId>postgresql</artifactId>
-        <version>42.2.2</version>
+        <version>42.2.5</version>
       </dependency>
       <dependency>
         <groupId>org.apache.commons</groupId>
@@ -266,19 +258,9 @@
         <version>2.2.0</version>
       </dependency>
       <dependency>
-        <groupId>net.minidev</groupId>
-        <artifactId>json-smart</artifactId>
-        <version>2.2.1</version>
-      </dependency>
-      <dependency>
-        <groupId>net.minidev</groupId>
-        <artifactId>accessors-smart</artifactId>
-        <version>1.1</version>
-      </dependency>
-      <dependency>
         <groupId>org.topicquests</groupId>
         <artifactId>tq-support</artifactId>
-        <version>1.7.3-SNAPSHOT</version>
+        <version>1.8.0-SNAPSHOT</version>
       </dependency>
       <dependency>
 	<groupId>org.junit.jupiter</groupId>

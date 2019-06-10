@@ -165,12 +165,13 @@ public class PostgresConnectionFactory extends RootEnvironment
    * {@inheritDoc}
    */
   @Override
-  public void shutDown() throws SQLException {
+  public void shutDown() /*throws SQLException*/ {
     try {
       connectionPool.close();
     } catch (SQLException e) {
       logError(e.getMessage(), e);
-      throw e;
+      e.printStackTrace();
+      //throw e;
     } finally {
       connectionPool = null;
     }
