@@ -477,7 +477,7 @@ public class PostgresConnection implements IPostgresConnection {
     try {
       s = conn.createStatement();
       int rowcount = s.executeUpdate(sql);
-      result.setResultObject(new Integer(rowcount));
+      result.setResultObject(Integer.valueOf(rowcount));
     } catch (SQLException e) {
     	environment.logError(e.getMessage(), e);
      result.addErrorString(e.getMessage());
@@ -619,7 +619,7 @@ public class PostgresConnection implements IPostgresConnection {
       }
       
       int[] inserted = s.executeBatch();
-      result.setResultObject(new Integer(inserted.length));
+      result.setResultObject(Integer.valueOf(inserted.length));
     } catch (SQLException e) {
     	environment.logError(e.getMessage(), e);
       result.addErrorString(e.getMessage());
