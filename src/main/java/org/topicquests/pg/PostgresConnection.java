@@ -54,7 +54,7 @@ public class PostgresConnection implements IPostgresConnection {
       if (conn != null)
         conn.setAutoCommit(false);
     } catch(SQLException e) {
-      result.addErrorString(e.getMessage());
+      result.addErrorString("PGD-1 "+e.getMessage());
     }
 
     return result;
@@ -81,7 +81,7 @@ public class PostgresConnection implements IPostgresConnection {
       }
     } catch (SQLException e) {
     	environment.logError(e.getMessage(), e);
-      result.addErrorString(e.getMessage());
+      result.addErrorString("PGD-2 "+e.getMessage());
     }
 
     return result;
@@ -250,7 +250,7 @@ public class PostgresConnection implements IPostgresConnection {
         result.setResultObject(svpt);
       }
     } catch(SQLException e) {
-      result.addErrorString(e.getMessage());
+      result.addErrorString("PGD-3 "+e.getMessage());
     }
 
     return result;
@@ -276,7 +276,7 @@ public class PostgresConnection implements IPostgresConnection {
         result.setResultObject(svpt);
       }
     } catch(SQLException e) {
-      result.addErrorString(e.getMessage());
+      result.addErrorString("PGD-4 "+e.getMessage());
     }
 
     return result;
@@ -327,7 +327,7 @@ public class PostgresConnection implements IPostgresConnection {
         }
       }
     } catch(SQLException e) {
-      result.addErrorString(e.getMessage());
+      result.addErrorString("PGD-5 "+e.getMessage());
     }
 
     return result;
@@ -335,7 +335,7 @@ public class PostgresConnection implements IPostgresConnection {
 
   private IResult errorResult(SQLException e) {
     IResult r = new ResultPojo();
-    r.addErrorString(e.getMessage());
+    r.addErrorString("PGD-6 "+e.getMessage());
     return r;
   }
 	
@@ -363,14 +363,14 @@ public class PostgresConnection implements IPostgresConnection {
       s.execute(sql);
     } catch (SQLException e) {
     	environment.logError(e.getMessage(), e);
-     result.addErrorString(e.getMessage());
+     result.addErrorString("PGD-7 "+e.getMessage());
     } finally {
       if (s != null) {
         try {
           s.close();
         } catch (SQLException x) {
         	environment.logError(x.getMessage(), x);
-         result.addErrorString(x.getMessage());					
+         result.addErrorString("PGD-8 "+x.getMessage());					
         }
       }
     }
@@ -443,14 +443,14 @@ public class PostgresConnection implements IPostgresConnection {
       result.setResultObject(new Long(rs.getRow()));
     } catch (SQLException e) {
     	environment.logError(e.getMessage(), e);
-     result.addErrorString(e.getMessage());
+     result.addErrorString("PGD-9 "+e.getMessage());
     } finally {
       if (s != null) {
         try {
           s.close();
         } catch (SQLException x) {
         	environment.logError(x.getMessage(), x);
-         result.addErrorString(x.getMessage());					
+         result.addErrorString("PGD-10 "+x.getMessage());					
         }
       }
     }
@@ -480,14 +480,14 @@ public class PostgresConnection implements IPostgresConnection {
       result.setResultObject(Integer.valueOf(rowcount));
     } catch (SQLException e) {
     	environment.logError(e.getMessage(), e);
-     result.addErrorString(e.getMessage());
+     result.addErrorString("PGD-11 "+e.getMessage());
     } finally {
       if (s != null) {
         try {
           s.close();
         } catch (SQLException x) {
         	environment.logError(x.getMessage(), x);
-         result.addErrorString(x.getMessage());					
+         result.addErrorString("PGD-12 "+x.getMessage());					
         }
       }
     }
@@ -518,7 +518,7 @@ public class PostgresConnection implements IPostgresConnection {
       result.setResultObject(rs);
     } catch (SQLException e) {
     	environment.logError(e.getMessage(), e);
-      result.addErrorString(e.getMessage());
+      result.addErrorString("PGD-13 "+e.getMessage());
     }
     return result;
   }
@@ -545,7 +545,7 @@ public class PostgresConnection implements IPostgresConnection {
       s.execute();
     } catch (SQLException e) {
     	environment.logError(e.getMessage(), e);
-      result.addErrorString(e.getMessage());
+      result.addErrorString("PGD-14 "+e.getMessage());
     } finally {
       if (s != null) {
         this.closeStatement(s, result);
@@ -580,7 +580,7 @@ public class PostgresConnection implements IPostgresConnection {
 
     } catch (SQLException e) {
     	environment.logError(e.getMessage(), e);
-      result.addErrorString(e.getMessage());
+      result.addErrorString("PGD-15 "+e.getMessage());
     } finally {
       if (s != null) {
         this.closeStatement(s, result);
@@ -622,7 +622,7 @@ public class PostgresConnection implements IPostgresConnection {
       result.setResultObject(Integer.valueOf(inserted.length));
     } catch (SQLException e) {
     	environment.logError(e.getMessage(), e);
-      result.addErrorString(e.getMessage());
+      result.addErrorString("PGD-16 "+e.getMessage());
     } finally {
       if (s != null) {
         this.closeStatement(s, result);
@@ -637,6 +637,7 @@ public class PostgresConnection implements IPostgresConnection {
    */
   @Override
   public IResult executeSelect(String sql, Object... vals) {
+	  //System.out.println("ExecSel "+sql);
     IResult result = new ResultPojo();
     return executeSelect(sql, result, vals);
   }
@@ -650,12 +651,14 @@ public class PostgresConnection implements IPostgresConnection {
 
     try {
       s = conn.prepareStatement(sql);
-      setParamValues(s, vals);
+	  //System.out.println("ExecSel-- "+sql+" "+vals.length);
+	       setParamValues(s, vals);
+	 	  //System.out.println("ExecSel++ "+sql);
       ResultSet rs = s.executeQuery();
       result.setResultObject(rs);
     } catch (SQLException e) {
     	environment.logError(e.getMessage(), e);
-      result.addErrorString(e.getMessage());
+      result.addErrorString("PGD-17 "+e.getMessage());
     }
     
     return result;
@@ -677,7 +680,7 @@ public class PostgresConnection implements IPostgresConnection {
 	      result.setResultObject(rs);
 	    } catch (SQLException e) {
 	    	environment.logError(e.getMessage(), e);
-	      result.addErrorString(e.getMessage());
+	      result.addErrorString("PGD-18 "+e.getMessage());
 	    }
 	    
 	    return result;
@@ -712,7 +715,7 @@ public class PostgresConnection implements IPostgresConnection {
       }
     } catch (SQLException e) {
     	environment.logError(e.getMessage(), e);
-      result.addErrorString(e.getMessage());
+      result.addErrorString("PGD-19 "+e.getMessage());
     }
     
     return result;
@@ -728,7 +731,7 @@ public class PostgresConnection implements IPostgresConnection {
         rs.close();
     } catch (SQLException e) {
     	environment.logError(e.getMessage(), e);
-      r.addErrorString(e.getMessage());
+      r.addErrorString("PGD-20 "+e.getMessage());
     }
   }
 
@@ -742,7 +745,7 @@ public class PostgresConnection implements IPostgresConnection {
         conn.close();
     } catch (SQLException e) {
     	environment.logError(e.getMessage(), e);
-      r.addErrorString(e.getMessage());
+      r.addErrorString("PGD-21 "+e.getMessage());
     } finally {
       conn = null;
     }
@@ -758,7 +761,7 @@ public class PostgresConnection implements IPostgresConnection {
         s.close();
     } catch (SQLException e) {
     	environment.logError(e.getMessage(), e);
-     r.addErrorString(e.getMessage());
+     r.addErrorString("PGD-22 "+e.getMessage());
     }
   }
 
@@ -772,14 +775,16 @@ public class PostgresConnection implements IPostgresConnection {
         s.close();
     } catch (SQLException e) {
     	environment.logError(e.getMessage(), e);
-     r.addErrorString(e.getMessage());
+     r.addErrorString("PGD-23 "+e.getMessage());
     }	
   }
 
   private void setParamValues(PreparedStatement s, Object... vals) throws SQLException {
     int len = vals.length;
+	//System.out.println("SetParamValues- "+len+" "+s);
 
     for (int i = 0; i < len; i++) {
+    	//System.out.println("SetParamValues "+vals[i]);
       if (vals[i] == null) {
         s.setNull(i+1, java.sql.Types.OTHER);
       } else {
@@ -820,6 +825,7 @@ public class PostgresConnection implements IPostgresConnection {
         } else if (vals[i] instanceof BigInteger) {
           s.setString(i+1, vals[i].toString());
         } else {
+        	System.out.println("BadParam "+i);
           s.setObject(i+1, vals[i]);
         }
       }

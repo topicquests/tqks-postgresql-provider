@@ -68,7 +68,7 @@ public class PostgresConnectionFactory extends RootEnvironment
    */
   public PostgresConnectionFactory(String dbName, String dbSchema,
                                    String user, String password) {
-    super("postgress-props.xml", "logger.properties");
+    super("postgress-props.xml");
     logDebug("PostgresConnectionFactory starting");
     String dbUrl = getStringProperty("DatabaseURL");
     int    dbPort = Integer.parseInt(getStringProperty("DatabasePort"));
