@@ -799,7 +799,11 @@ public class PostgresConnection implements IPostgresConnection {
         } else if (vals[i] instanceof Integer) {
           s.setInt(i+1, ((Integer) vals[i]).intValue());
         } else if (vals[i] instanceof Long) {
-          s.setLong(i+1, ((Long) vals[i]).longValue());
+        	long x =((Long) vals[i]).longValue();
+        	if (x == -1)
+        		s.setNull(i+1, Types.BIGINT);
+        	else
+        		s.setLong(i+1, x);
         } else if (vals[i] instanceof Float) {
           s.setFloat(i+1, ((Float) vals[i]).floatValue());
         } else if (vals[i] instanceof Double) {
