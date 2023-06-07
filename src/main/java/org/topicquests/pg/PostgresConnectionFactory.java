@@ -26,7 +26,7 @@ import org.topicquests.support.RootEnvironment;
 
 import org.apache.commons.dbcp2.*;
 
-public class PostgresConnectionFactory extends RootEnvironment 
+public class PostgresConnectionFactory extends RootEnvironment
     implements IPostgresConnectionFactory {
   private String urx;
   private BasicDataSource connectionPool = null;
@@ -68,7 +68,7 @@ public class PostgresConnectionFactory extends RootEnvironment
    */
   public PostgresConnectionFactory(String dbName, String dbSchema,
                                    String user, String password) {
-    super("postgress-props.xml");
+    super("postgresql-props.xml");
     String dbUrl = getStringProperty("DatabaseURL");
     logDebug("PostgresConnectionFactory starting "+dbName);
     int    dbPort = Integer.parseInt(getStringProperty("DatabasePort"));
@@ -80,7 +80,7 @@ public class PostgresConnectionFactory extends RootEnvironment
     if (password == null) {
       password = getStringProperty("DbPwd");
     }
-    
+
     connectionPool = new BasicDataSource();
     this.setUser(user);
     this.setPassword(password);
@@ -157,7 +157,7 @@ public class PostgresConnectionFactory extends RootEnvironment
    */
   @Override
   public IPostgresConnection getConnection() throws SQLException {
-	  
+
 	  try {
 		  Connection con = connectionPool.getConnection();
 		  return new PostgresConnection(con, this);
@@ -165,7 +165,7 @@ public class PostgresConnectionFactory extends RootEnvironment
 		  logError("ConnectionFail "+e.getMessage(), e);
 		  throw new SQLException(e);
 	  }
-	  
+
   }
 
   /**

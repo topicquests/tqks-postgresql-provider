@@ -1,5 +1,5 @@
 
-# tqks-postgress-provider
+# tqks-postgresql-provider
 
 ## Build
 
